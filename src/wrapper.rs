@@ -14,72 +14,76 @@ pub struct Wrapper {
     pub data: *mut c_void,
 
     /* Initialize, run, finalize (IRF) */
-    initialize: Option<unsafe extern "C" fn(*mut c_void, *const c_char) -> c_int>,
-    update: Option<unsafe extern "C" fn(*mut c_void) -> c_int>,
-    update_until: Option<unsafe extern "C" fn(*mut c_void, c_double) -> c_int>,
-    finalize: Option<unsafe extern "C" fn(*mut c_void) -> c_int>,
+    pub initialize: Option<unsafe extern "C" fn(*mut c_void, *const c_char) -> c_int>,
+    pub update: Option<unsafe extern "C" fn(*mut c_void) -> c_int>,
+    pub update_until: Option<unsafe extern "C" fn(*mut c_void, c_double) -> c_int>,
+    pub finalize: Option<unsafe extern "C" fn(*mut c_void) -> c_int>,
 
     /* Exchange items */
-    get_component_name: Option<unsafe extern "C" fn(*mut c_void, *mut c_char) -> c_int>,
-    get_input_item_count: Option<unsafe extern "C" fn(*mut c_void, *mut c_int) -> c_int>,
-    get_output_item_count: Option<unsafe extern "C" fn(*mut c_void, *mut c_int) -> c_int>,
-    // NOTE: I not sure if the double pointer is right or not?
-    get_input_var_names: Option<unsafe extern "C" fn(*mut c_void, *mut *mut c_char) -> c_int>,
-    get_output_var_names: Option<unsafe extern "C" fn(*mut c_void, *mut *mut c_char) -> c_int>,
+    pub get_component_name: Option<unsafe extern "C" fn(*mut c_void, *mut c_char) -> c_int>,
+    pub get_input_item_count: Option<unsafe extern "C" fn(*mut c_void, *mut c_int) -> c_int>,
+    pub get_output_item_count: Option<unsafe extern "C" fn(*mut c_void, *mut c_int) -> c_int>,
+    pub get_input_var_names: Option<unsafe extern "C" fn(*mut c_void, *mut *mut c_char) -> c_int>,
+    pub get_output_var_names: Option<unsafe extern "C" fn(*mut c_void, *mut *mut c_char) -> c_int>,
 
     /* Variable information */
-    get_var_grid: Option<unsafe extern "C" fn(*mut c_void, *const c_char, *mut c_int) -> c_int>,
-    get_var_type: Option<unsafe extern "C" fn(*mut c_void, *const c_char, *mut c_char) -> c_int>,
-    get_var_units: Option<unsafe extern "C" fn(*mut c_void, *const c_char, *mut c_char) -> c_int>,
-    get_var_itemsize: Option<unsafe extern "C" fn(*mut c_void, *const c_char, *mut c_int) -> c_int>,
-    get_var_nbytes: Option<unsafe extern "C" fn(*mut c_void, *const c_char, *mut c_int) -> c_int>,
-    get_var_location:
+    pub get_var_grid: Option<unsafe extern "C" fn(*mut c_void, *const c_char, *mut c_int) -> c_int>,
+    pub get_var_type:
+        Option<unsafe extern "C" fn(*mut c_void, *const c_char, *mut c_char) -> c_int>,
+    pub get_var_units:
+        Option<unsafe extern "C" fn(*mut c_void, *const c_char, *mut c_char) -> c_int>,
+    pub get_var_itemsize:
+        Option<unsafe extern "C" fn(*mut c_void, *const c_char, *mut c_int) -> c_int>,
+    pub get_var_nbytes:
+        Option<unsafe extern "C" fn(*mut c_void, *const c_char, *mut c_int) -> c_int>,
+    pub get_var_location:
         Option<unsafe extern "C" fn(*mut c_void, *const c_char, *mut c_char) -> c_int>,
 
     /* Time information */
-    get_current_time: Option<unsafe extern "C" fn(*mut c_void, *mut c_double) -> c_int>,
-    get_start_time: Option<unsafe extern "C" fn(*mut c_void, *mut c_double) -> c_int>,
-    get_end_time: Option<unsafe extern "C" fn(*mut c_void, *mut c_double) -> c_int>,
-    get_time_units: Option<unsafe extern "C" fn(*mut c_void, *mut c_char) -> c_int>,
-    get_time_step: Option<unsafe extern "C" fn(*mut c_void, *mut c_double) -> c_int>,
+    pub get_current_time: Option<unsafe extern "C" fn(*mut c_void, *mut c_double) -> c_int>,
+    pub get_start_time: Option<unsafe extern "C" fn(*mut c_void, *mut c_double) -> c_int>,
+    pub get_end_time: Option<unsafe extern "C" fn(*mut c_void, *mut c_double) -> c_int>,
+    pub get_time_units: Option<unsafe extern "C" fn(*mut c_void, *mut c_char) -> c_int>,
+    pub get_time_step: Option<unsafe extern "C" fn(*mut c_void, *mut c_double) -> c_int>,
 
     /* Getters */
-    get_value: Option<unsafe extern "C" fn(*mut c_void, *const c_char, *mut c_void) -> c_int>,
-    get_value_ptr:
+    pub get_value: Option<unsafe extern "C" fn(*mut c_void, *const c_char, *mut c_void) -> c_int>,
+    pub get_value_ptr:
         Option<unsafe extern "C" fn(*mut c_void, *const c_char, *mut *mut c_void) -> c_int>,
-    get_value_at_indices: Option<
+    pub get_value_at_indices: Option<
         unsafe extern "C" fn(*mut c_void, *const c_char, *mut c_void, *mut c_int, c_int) -> c_int,
     >,
 
     /* Setters */
-    set_value: Option<unsafe extern "C" fn(*mut c_void, *const c_char, *mut c_void) -> c_int>,
-    set_value_at_indices: Option<
+    pub set_value: Option<unsafe extern "C" fn(*mut c_void, *const c_char, *mut c_void) -> c_int>,
+    pub set_value_at_indices: Option<
         unsafe extern "C" fn(*mut c_void, *const c_char, *mut c_int, c_int, *mut c_void) -> c_int,
     >,
 
     /* Grid information */
-    get_grid_rank: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_int) -> c_int>,
-    get_grid_size: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_int) -> c_int>,
-    get_grid_type: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_char) -> c_int>,
+    pub get_grid_rank: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_int) -> c_int>,
+    pub get_grid_size: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_int) -> c_int>,
+    pub get_grid_type: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_char) -> c_int>,
 
     /* Uniform rectilinear */
-    get_grid_shape: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_int) -> c_int>,
-    get_grid_spacing: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_double) -> c_int>,
-    get_grid_origin: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_double) -> c_int>,
+    pub get_grid_shape: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_int) -> c_int>,
+    pub get_grid_spacing: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_double) -> c_int>,
+    pub get_grid_origin: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_double) -> c_int>,
 
     /* Non-uniform rectilinear, curvilinear */
-    get_grid_x: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_double) -> c_int>,
-    get_grid_y: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_double) -> c_int>,
-    get_grid_z: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_double) -> c_int>,
+    pub get_grid_x: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_double) -> c_int>,
+    pub get_grid_y: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_double) -> c_int>,
+    pub get_grid_z: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_double) -> c_int>,
 
     /* Unstructured */
-    get_grid_node_count: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_int) -> c_int>,
-    get_grid_edge_count: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_int) -> c_int>,
-    get_grid_face_count: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_int) -> c_int>,
-    get_grid_edge_nodes: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_int) -> c_int>,
-    get_grid_face_edges: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_int) -> c_int>,
-    get_grid_face_nodes: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_int) -> c_int>,
-    get_grid_nodes_per_face: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_int) -> c_int>,
+    pub get_grid_node_count: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_int) -> c_int>,
+    pub get_grid_edge_count: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_int) -> c_int>,
+    pub get_grid_face_count: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_int) -> c_int>,
+    pub get_grid_edge_nodes: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_int) -> c_int>,
+    pub get_grid_face_edges: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_int) -> c_int>,
+    pub get_grid_face_nodes: Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_int) -> c_int>,
+    pub get_grid_nodes_per_face:
+        Option<unsafe extern "C" fn(*mut c_void, c_int, *mut c_int) -> c_int>,
 }
 
 fn copy_str(src: &str, out: *mut c_char) -> Option<()> {
