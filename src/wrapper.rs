@@ -100,6 +100,14 @@ fn copy_str(src: &str, out: *mut c_char) -> Option<()> {
     return Some(());
 }
 
+impl From<*mut c_void> for &mut Box<dyn Bmi> {
+    fn from(value: *mut c_void) -> Self {
+        let wrapper: &mut Wrapper = unsafe { &mut *(value as *mut Wrapper) };
+        let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(wrapper.data as *mut Box<dyn Bmi>) };
+        return wrapper;
+    }
+}
+
 #[no_mangle]
 pub extern "C" fn initialize(this: *mut c_void, config_file: *const c_char) -> c_int {
     let c_str: &CStr = unsafe { CStr::from_ptr(config_file) };
