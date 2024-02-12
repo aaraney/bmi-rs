@@ -231,7 +231,7 @@ impl Error for BmiNotImplementedError {}
 // TODO: Add docs
 pub trait Bmi {
     /* Initialize, run, finalize (IRF) */
-    fn initialize(&mut self, config_file: &'static str) -> Result<(), Box<dyn Error>>;
+    fn initialize(&mut self, config_file: &str) -> Result<(), Box<dyn Error>>;
     fn update(&mut self) -> Result<(), Box<dyn Error>>;
     fn update_until(&mut self, then: f64) -> Result<(), Box<dyn Error>>;
     // TODO: I think the semantics will need to be different in the trait.
