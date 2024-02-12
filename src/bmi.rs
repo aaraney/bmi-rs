@@ -91,6 +91,21 @@ pub enum ValueVec {
     F64(Vec<f64>), // double
 }
 
+impl ValueVec {
+    pub fn value_type(&self) -> ValueType {
+        match self {
+            ValueVec::I16(_) => ValueType::I16,
+            ValueVec::U16(_) => ValueType::U16,
+            ValueVec::I32(_) => ValueType::I32,
+            ValueVec::U32(_) => ValueType::U32,
+            ValueVec::I64(_) => ValueType::I64,
+            ValueVec::U64(_) => ValueType::U64,
+            ValueVec::F32(_) => ValueType::F32,
+            ValueVec::F64(_) => ValueType::F64,
+        }
+    }
+}
+
 impl From<Vec<i16>> for ValueVec {
     fn from(v: Vec<i16>) -> Self {
         return ValueVec::I16(v);
@@ -212,6 +227,19 @@ impl<'a> RefValueVec<'a> {
             RefValueVec::F32(v) => v.len(),
             RefValueVec::F64(v) => v.len(),
         };
+    }
+
+    pub fn value_type(&'a self) -> ValueType {
+        match self {
+            RefValueVec::I16(_) => ValueType::I16,
+            RefValueVec::U16(_) => ValueType::U16,
+            RefValueVec::I32(_) => ValueType::I32,
+            RefValueVec::U32(_) => ValueType::U32,
+            RefValueVec::I64(_) => ValueType::I64,
+            RefValueVec::U64(_) => ValueType::U64,
+            RefValueVec::F32(_) => ValueType::F32,
+            RefValueVec::F64(_) => ValueType::F64,
+        }
     }
 }
 
