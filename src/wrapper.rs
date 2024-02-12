@@ -1037,7 +1037,7 @@ impl Wrapper {
 //     wrapper.setup();
 //     wrapper.setup();
 
-//     let my_model: Box<dyn Bmi> = Box::new(some_model::new());
+//     let my_model: Box<Box<dyn Bmi>> = Box::new(Box::new(some_model::new()));
 //     let my_model = Box::into_raw(my_model);
 //     wrapper.data = Some(model as *mut c_void);
 //     return wrapper;
