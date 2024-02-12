@@ -8,11 +8,10 @@ use std::slice;
 pub const BMI_SUCCESS: c_int = 0;
 pub const BMI_FAILURE: c_int = 1;
 
-#[derive(Default)]
+#[derive(Debug)]
 #[repr(C)]
 pub struct Wrapper {
-    // data: Option<*mut Box<dyn Bmi>>,
-    data: Option<*mut c_void>,
+    pub data: *mut c_void,
 
     /* Initialize, run, finalize (IRF) */
     initialize: Option<unsafe extern "C" fn(*mut c_void, *const c_char) -> c_int>,
