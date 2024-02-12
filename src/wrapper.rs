@@ -114,18 +114,16 @@ pub extern "C" fn initialize(this: *mut c_void, config_file: *const c_char) -> c
     let Ok(config_file) = c_str.to_str() else {
         return BMI_FAILURE;
     };
-
-    // *mut Box<dyn Bmi>
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     match wrapper.initialize(config_file) {
-        Ok(()) => return BMI_SUCCESS,
-        Err(_) => return BMI_FAILURE,
+        Ok(()) => BMI_SUCCESS,
+        Err(_) => BMI_FAILURE,
     }
 }
 
 #[no_mangle]
 pub extern "C" fn update(this: *mut c_void) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     match wrapper.update() {
         Ok(()) => return BMI_SUCCESS,
         Err(_) => return BMI_FAILURE,
@@ -134,7 +132,7 @@ pub extern "C" fn update(this: *mut c_void) -> c_int {
 
 #[no_mangle]
 pub extern "C" fn update_until(this: *mut c_void, then: c_double) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     match wrapper.update_until(then) {
         Ok(()) => return BMI_SUCCESS,
         Err(_) => return BMI_FAILURE,
@@ -143,13 +141,16 @@ pub extern "C" fn update_until(this: *mut c_void, then: c_double) -> c_int {
 
 #[no_mangle]
 pub extern "C" fn finalize(this: *mut c_void) -> c_int {
-    let _ = unsafe { Box::<Box<dyn Bmi>>::from_raw(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Wrapper = unsafe { &mut *(this as *mut Wrapper) };
+    let model = wrapper.data as *mut Box<dyn Bmi>;
+    // drop data field
+    _ = unsafe { Box::from_raw(model) };
     return BMI_SUCCESS;
 }
 
 #[no_mangle]
 pub extern "C" fn get_component_name(this: *mut c_void, name: *mut c_char) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
 
     let Some(_) = copy_str(wrapper.get_component_name(), name) else {
         return BMI_FAILURE;
@@ -159,7 +160,7 @@ pub extern "C" fn get_component_name(this: *mut c_void, name: *mut c_char) -> c_
 
 #[no_mangle]
 pub extern "C" fn get_input_item_count(this: *mut c_void, count: *mut c_int) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     unsafe {
         *count = wrapper.get_input_item_count() as c_int;
     }
@@ -168,7 +169,7 @@ pub extern "C" fn get_input_item_count(this: *mut c_void, count: *mut c_int) -> 
 
 #[no_mangle]
 pub extern "C" fn get_output_item_count(this: *mut c_void, count: *mut c_int) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     unsafe {
         *count = wrapper.get_output_item_count() as c_int;
     }
@@ -178,7 +179,7 @@ pub extern "C" fn get_output_item_count(this: *mut c_void, count: *mut c_int) ->
 // NOTE: I not sure if the double pointer is right or not?
 #[no_mangle]
 pub extern "C" fn get_input_var_names(this: *mut c_void, names: *mut *mut c_char) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let var_names = wrapper.get_input_var_names();
     let c_var_names: Vec<CString> = var_names
         .iter()
@@ -205,7 +206,7 @@ pub extern "C" fn get_input_var_names(this: *mut c_void, names: *mut *mut c_char
 
 #[no_mangle]
 pub extern "C" fn get_output_var_names(this: *mut c_void, names: *mut *mut c_char) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let var_names = wrapper.get_output_var_names();
     let c_var_names: Vec<CString> = var_names
         .iter()
@@ -242,7 +243,7 @@ unsafe extern "C" fn get_var_grid(
         return BMI_FAILURE;
     };
 
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(grid_id) = wrapper.get_var_grid(var_name) else {
         return BMI_FAILURE;
     };
@@ -260,7 +261,7 @@ unsafe extern "C" fn get_var_type(
         return BMI_FAILURE;
     };
 
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(var_type) = wrapper.get_var_type(var_name) else {
         return BMI_FAILURE;
     };
@@ -292,7 +293,7 @@ unsafe extern "C" fn get_var_units(
         return BMI_FAILURE;
     };
 
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(var_units) = wrapper.get_var_units(var_name) else {
         return BMI_FAILURE;
     };
@@ -313,7 +314,7 @@ unsafe extern "C" fn get_var_itemsize(
         return BMI_FAILURE;
     };
 
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(item_size) = wrapper.get_var_itemsize(var_name) else {
         return BMI_FAILURE;
     };
@@ -331,7 +332,7 @@ unsafe extern "C" fn get_var_nbytes(
         return BMI_FAILURE;
     };
 
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(var_nbytes) = wrapper.get_var_nbytes(var_name) else {
         return BMI_FAILURE;
     };
@@ -349,7 +350,7 @@ unsafe extern "C" fn get_var_location(
         return BMI_FAILURE;
     };
 
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
 
     let Ok(var_location) = wrapper.get_var_location(var_name) else {
         return BMI_FAILURE;
@@ -364,25 +365,25 @@ unsafe extern "C" fn get_var_location(
 /* Time information */
 #[no_mangle]
 unsafe extern "C" fn get_current_time(this: *mut c_void, time: *mut c_double) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     *time = wrapper.get_current_time();
     return BMI_SUCCESS;
 }
 #[no_mangle]
 unsafe extern "C" fn get_start_time(this: *mut c_void, time: *mut c_double) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     *time = wrapper.get_start_time();
     return BMI_SUCCESS;
 }
 #[no_mangle]
 unsafe extern "C" fn get_end_time(this: *mut c_void, time: *mut c_double) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     *time = wrapper.get_end_time();
     return BMI_SUCCESS;
 }
 #[no_mangle]
 unsafe extern "C" fn get_time_units(this: *mut c_void, units: *mut c_char) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Some(()) = copy_str(wrapper.get_time_units(), units) else {
         return BMI_FAILURE;
     };
@@ -390,7 +391,7 @@ unsafe extern "C" fn get_time_units(this: *mut c_void, units: *mut c_char) -> c_
 }
 #[no_mangle]
 unsafe extern "C" fn get_time_step(this: *mut c_void, time_step: *mut c_double) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     *time_step = wrapper.get_time_step();
     return BMI_SUCCESS;
 }
@@ -404,7 +405,7 @@ unsafe extern "C" fn get_value(this: *mut c_void, name: *const c_char, dest: *mu
         return BMI_FAILURE;
     };
 
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(value) = wrapper.get_value(var_name) else {
         return BMI_FAILURE;
     };
@@ -466,7 +467,7 @@ unsafe extern "C" fn get_value_ptr(
         return BMI_FAILURE;
     };
 
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(value_ptr) = wrapper.get_value_ptr(var_name) else {
         return BMI_FAILURE;
     };
@@ -520,7 +521,7 @@ unsafe extern "C" fn get_value_at_indices(
         return BMI_FAILURE;
     };
 
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(value) = wrapper.get_value_at_indices(var_name, &var_ids) else {
         return BMI_FAILURE;
     };
@@ -587,7 +588,7 @@ unsafe extern "C" fn set_value(
         return BMI_FAILURE;
     };
 
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(var_type) = wrapper.get_var_type(var_name) else {
         return BMI_FAILURE;
     };
@@ -689,7 +690,7 @@ unsafe extern "C" fn set_value_at_indices(
         return BMI_FAILURE;
     };
 
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(var_type) = wrapper.get_var_type(var_name) else {
         return BMI_FAILURE;
     };
@@ -754,7 +755,7 @@ unsafe extern "C" fn set_value_at_indices(
 /* Grid information */
 #[no_mangle]
 unsafe extern "C" fn get_grid_rank(this: *mut c_void, grid: c_int, rank: *mut c_int) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(grid_rank) = wrapper.get_grid_rank(grid) else {
         return BMI_FAILURE;
     };
@@ -763,7 +764,7 @@ unsafe extern "C" fn get_grid_rank(this: *mut c_void, grid: c_int, rank: *mut c_
 }
 #[no_mangle]
 unsafe extern "C" fn get_grid_size(this: *mut c_void, grid: c_int, size: *mut c_int) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(grid_size) = wrapper.get_grid_size(grid) else {
         return BMI_FAILURE;
     };
@@ -772,7 +773,7 @@ unsafe extern "C" fn get_grid_size(this: *mut c_void, grid: c_int, size: *mut c_
 }
 #[no_mangle]
 unsafe extern "C" fn get_grid_type(this: *mut c_void, grid: c_int, ty: *mut c_char) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(grid_type) = wrapper.get_grid_type(grid) else {
         return BMI_FAILURE;
     };
@@ -785,7 +786,7 @@ unsafe extern "C" fn get_grid_type(this: *mut c_void, grid: c_int, ty: *mut c_ch
 /* Uniform rectilinear */
 #[no_mangle]
 unsafe extern "C" fn get_grid_shape(this: *mut c_void, grid: c_int, shape: *mut c_int) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(grid_shape) = wrapper.get_grid_shape(grid) else {
         return BMI_FAILURE;
     };
@@ -798,7 +799,7 @@ unsafe extern "C" fn get_grid_spacing(
     grid: c_int,
     spacing: *mut c_double,
 ) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(grid_spacing) = wrapper.get_grid_spacing(grid) else {
         return BMI_FAILURE;
     };
@@ -811,7 +812,7 @@ unsafe extern "C" fn get_grid_origin(
     grid: c_int,
     origin: *mut c_double,
 ) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(grid_origin) = wrapper.get_grid_origin(grid) else {
         return BMI_FAILURE;
     };
@@ -822,7 +823,7 @@ unsafe extern "C" fn get_grid_origin(
 /* Non-uniform rectilinear, curvilinear */
 #[no_mangle]
 unsafe extern "C" fn get_grid_x(this: *mut c_void, grid: c_int, x: *mut c_double) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(grid_x) = wrapper.get_grid_x(grid) else {
         return BMI_FAILURE;
     };
@@ -831,7 +832,7 @@ unsafe extern "C" fn get_grid_x(this: *mut c_void, grid: c_int, x: *mut c_double
 }
 #[no_mangle]
 unsafe extern "C" fn get_grid_y(this: *mut c_void, grid: c_int, y: *mut c_double) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(grid_y) = wrapper.get_grid_y(grid) else {
         return BMI_FAILURE;
     };
@@ -840,7 +841,7 @@ unsafe extern "C" fn get_grid_y(this: *mut c_void, grid: c_int, y: *mut c_double
 }
 #[no_mangle]
 unsafe extern "C" fn get_grid_z(this: *mut c_void, grid: c_int, z: *mut c_double) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(grid_z) = wrapper.get_grid_z(grid) else {
         return BMI_FAILURE;
     };
@@ -855,7 +856,7 @@ unsafe extern "C" fn get_grid_node_count(
     grid: c_int,
     count: *mut c_int,
 ) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(node_count) = wrapper.get_grid_node_count(grid) else {
         return BMI_FAILURE;
     };
@@ -868,7 +869,7 @@ unsafe extern "C" fn get_grid_edge_count(
     grid: c_int,
     count: *mut c_int,
 ) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(edge_count) = wrapper.get_grid_edge_count(grid) else {
         return BMI_FAILURE;
     };
@@ -881,7 +882,7 @@ unsafe extern "C" fn get_grid_face_count(
     grid: c_int,
     count: *mut c_int,
 ) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(face_count) = wrapper.get_grid_face_count(grid) else {
         return BMI_FAILURE;
     };
@@ -894,7 +895,7 @@ unsafe extern "C" fn get_grid_edge_nodes(
     grid: c_int,
     edge_nodes: *mut c_int,
 ) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(grid_edge_nodes) = wrapper.get_grid_edge_nodes(grid) else {
         return BMI_FAILURE;
     };
@@ -907,7 +908,7 @@ unsafe extern "C" fn get_grid_face_edges(
     grid: c_int,
     face_edges: *mut c_int,
 ) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(grid_face_edges) = wrapper.get_grid_face_edges(grid) else {
         return BMI_FAILURE;
     };
@@ -920,7 +921,7 @@ unsafe extern "C" fn get_grid_face_nodes(
     grid: c_int,
     face_nodes: *mut c_int,
 ) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(grid_face_nodes) = wrapper.get_grid_face_nodes(grid) else {
         return BMI_FAILURE;
     };
@@ -933,7 +934,7 @@ unsafe extern "C" fn get_grid_nodes_per_face(
     grid: c_int,
     nodes_per_face: *mut c_int,
 ) -> c_int {
-    let wrapper: &mut Box<dyn Bmi> = unsafe { &mut *(this as *mut Box<dyn Bmi>) };
+    let wrapper: &mut Box<dyn Bmi> = this.into();
     let Ok(grid_nodes_per_face) = wrapper.get_grid_nodes_per_face(grid) else {
         return BMI_FAILURE;
     };
@@ -949,7 +950,7 @@ impl From<Box<dyn Bmi>> for Wrapper {
         let model = Box::into_raw(model);
 
         return Wrapper {
-            data: Some(model as *mut c_void),
+            data: model as *mut c_void,
             initialize: Some(initialize),
             update: Some(update),
             update_until: Some(update_until),
