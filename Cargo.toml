@@ -3,5 +3,9 @@ name = "bmi-rs"
 version = "0.0.1"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "Bindings for the CSDMS Basic Model Interface (BMI)"
+readme = "README.md"
+authors = ["Austin Raney <araney@lynker.com>"]
+license = "MIT"
 
+homepage = "https://github.com/aaraney/bmi-rs"
