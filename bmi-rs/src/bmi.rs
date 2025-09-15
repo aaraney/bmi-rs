@@ -70,11 +70,11 @@ pub enum ValueType {
 
 impl ValueType {
     pub fn bytes(&self) -> usize {
-        return match self {
+        match self {
             ValueType::I16 | ValueType::U16 => 2,
             ValueType::I32 | ValueType::U32 | ValueType::F32 => 4,
             ValueType::I64 | ValueType::U64 | ValueType::F64 => 8,
-        };
+        }
     }
 }
 
@@ -108,48 +108,48 @@ impl ValueVec {
 
 impl From<Vec<i16>> for ValueVec {
     fn from(v: Vec<i16>) -> Self {
-        return ValueVec::I16(v);
+        ValueVec::I16(v)
     }
 }
 impl From<Vec<u16>> for ValueVec {
     fn from(v: Vec<u16>) -> Self {
-        return ValueVec::U16(v);
+        ValueVec::U16(v)
     }
 }
 impl From<Vec<u32>> for ValueVec {
     fn from(v: Vec<u32>) -> Self {
-        return ValueVec::U32(v);
+        ValueVec::U32(v)
     }
 }
 impl From<Vec<i32>> for ValueVec {
     fn from(v: Vec<i32>) -> Self {
-        return ValueVec::I32(v);
+        ValueVec::I32(v)
     }
 }
 impl From<Vec<u64>> for ValueVec {
     fn from(v: Vec<u64>) -> Self {
-        return ValueVec::U64(v);
+        ValueVec::U64(v)
     }
 }
 impl From<Vec<i64>> for ValueVec {
     fn from(v: Vec<i64>) -> Self {
-        return ValueVec::I64(v);
+        ValueVec::I64(v)
     }
 }
 impl From<Vec<f32>> for ValueVec {
     fn from(v: Vec<f32>) -> Self {
-        return ValueVec::F32(v);
+        ValueVec::F32(v)
     }
 }
 impl From<Vec<f64>> for ValueVec {
     fn from(v: Vec<f64>) -> Self {
-        return ValueVec::F64(v);
+        ValueVec::F64(v)
     }
 }
 
 impl ValueVec {
     pub fn len(&self) -> usize {
-        return match self {
+        match self {
             ValueVec::I16(v) => v.len(),
             ValueVec::U16(v) => v.len(),
             ValueVec::I32(v) => v.len(),
@@ -158,7 +158,7 @@ impl ValueVec {
             ValueVec::U64(v) => v.len(),
             ValueVec::F32(v) => v.len(),
             ValueVec::F64(v) => v.len(),
-        };
+        }
     }
 }
 
@@ -176,48 +176,48 @@ pub enum RefValueVec<'a> {
 
 impl<'a> From<&'a Vec<i16>> for RefValueVec<'a> {
     fn from(v: &'a Vec<i16>) -> Self {
-        return RefValueVec::I16(v);
+        RefValueVec::I16(v)
     }
 }
 impl<'a> From<&'a Vec<u16>> for RefValueVec<'a> {
     fn from(v: &'a Vec<u16>) -> Self {
-        return RefValueVec::U16(v);
+        RefValueVec::U16(v)
     }
 }
 impl<'a> From<&'a Vec<u32>> for RefValueVec<'a> {
     fn from(v: &'a Vec<u32>) -> Self {
-        return RefValueVec::U32(v);
+        RefValueVec::U32(v)
     }
 }
 impl<'a> From<&'a Vec<i32>> for RefValueVec<'a> {
     fn from(v: &'a Vec<i32>) -> Self {
-        return RefValueVec::I32(v);
+        RefValueVec::I32(v)
     }
 }
 impl<'a> From<&'a Vec<u64>> for RefValueVec<'a> {
     fn from(v: &'a Vec<u64>) -> Self {
-        return RefValueVec::U64(v);
+        RefValueVec::U64(v)
     }
 }
 impl<'a> From<&'a Vec<i64>> for RefValueVec<'a> {
     fn from(v: &'a Vec<i64>) -> Self {
-        return RefValueVec::I64(v);
+        RefValueVec::I64(v)
     }
 }
 impl<'a> From<&'a Vec<f32>> for RefValueVec<'a> {
     fn from(v: &'a Vec<f32>) -> Self {
-        return RefValueVec::F32(v);
+        RefValueVec::F32(v)
     }
 }
 impl<'a> From<&'a Vec<f64>> for RefValueVec<'a> {
     fn from(v: &'a Vec<f64>) -> Self {
-        return RefValueVec::F64(v);
+        RefValueVec::F64(v)
     }
 }
 
 impl<'a> RefValueVec<'a> {
     pub fn len(&'a self) -> usize {
-        return match self {
+        match self {
             RefValueVec::I16(v) => v.len(),
             RefValueVec::U16(v) => v.len(),
             RefValueVec::I32(v) => v.len(),
@@ -226,7 +226,7 @@ impl<'a> RefValueVec<'a> {
             RefValueVec::U64(v) => v.len(),
             RefValueVec::F32(v) => v.len(),
             RefValueVec::F64(v) => v.len(),
-        };
+        }
     }
 
     pub fn value_type(&'a self) -> ValueType {
@@ -300,9 +300,9 @@ pub trait Bmi {
     /* Getters */
     fn get_value(&self, name: &str) -> Result<ValueVec, Box<dyn Error>>;
     // NOTE: not sure if we can use &ValueVec instead. I dont think so
-    fn get_value_ptr(&self, name: &str) -> Result<RefValueVec, Box<dyn Error>>;
+    fn get_value_ptr<'a>(&'a self, name: &str) -> Result<RefValueVec<'a>, Box<dyn Error>>;
     fn get_value_at_indices(&self, name: &str, inds: &Vec<u32>)
-        -> Result<ValueVec, Box<dyn Error>>;
+    -> Result<ValueVec, Box<dyn Error>>;
 
     /* Setters */
     fn set_value(&mut self, name: &str, src: &ValueVec) -> Result<(), Box<dyn Error>>;
@@ -371,4 +371,73 @@ pub trait Bmi {
     fn get_grid_nodes_per_face(&self, _grid: i32) -> Result<i32, Box<dyn Error>> {
         return Err(Box::new(BmiNotImplementedError));
     }
+}
+
+// you should now be able to do something like:
+// pub extern "C" fn register_bmi_cfe(model: *mut Wrapper) -> *mut Wrapper {
+//     let wrapper: &mut Wrapper = unsafe { &mut *model };
+//     // this is temporary, wont be in final api
+//     wrapper.setup();
+//     wrapper.setup();
+
+//     let my_model: Box<Box<dyn Bmi>> = Box::new(Box::new(some_model::new()));
+//     let my_model = Box::into_raw(my_model);
+//     wrapper.data = Some(model as *mut c_void);
+//     return wrapper;
+// }
+
+// Bmi* register_bmi(Bmi *model);
+// https://github.com/NOAA-OWP/ngen/wiki/BMI-C#additional-bootstrapping-function-needed
+pub fn register_model<T: Bmi>(handle: *mut ffi::Bmi, model: T) {
+    assert!(!handle.is_null(), "pointer is null");
+    let handle: &mut ffi::Bmi = unsafe { handle.as_mut() }.unwrap();
+    setup_fn_ptrs::<T>(handle);
+
+    let data: Box<T> = Box::new(model);
+    let data = Box::into_raw(data);
+    handle.data = data as *mut std::ffi::c_void;
+}
+
+fn setup_fn_ptrs<T: Bmi>(handle: &mut ffi::Bmi) {
+    handle.initialize = Some(crate::wrapper::initialize::<T>);
+    handle.update = Some(crate::wrapper::update::<T>);
+    handle.update_until = Some(crate::wrapper::update_until::<T>);
+    handle.finalize = Some(crate::wrapper::finalize::<T>);
+    handle.get_component_name = Some(crate::wrapper::get_component_name::<T>);
+    handle.get_input_item_count = Some(crate::wrapper::get_input_item_count::<T>);
+    handle.get_output_item_count = Some(crate::wrapper::get_output_item_count::<T>);
+    handle.get_input_var_names = Some(crate::wrapper::get_input_var_names::<T>);
+    handle.get_output_var_names = Some(crate::wrapper::get_output_var_names::<T>);
+    handle.get_var_grid = Some(crate::wrapper::get_var_grid::<T>);
+    handle.get_var_type = Some(crate::wrapper::get_var_type::<T>);
+    handle.get_var_units = Some(crate::wrapper::get_var_units::<T>);
+    handle.get_var_itemsize = Some(crate::wrapper::get_var_itemsize::<T>);
+    handle.get_var_nbytes = Some(crate::wrapper::get_var_nbytes::<T>);
+    handle.get_var_location = Some(crate::wrapper::get_var_location::<T>);
+    handle.get_current_time = Some(crate::wrapper::get_current_time::<T>);
+    handle.get_start_time = Some(crate::wrapper::get_start_time::<T>);
+    handle.get_end_time = Some(crate::wrapper::get_end_time::<T>);
+    handle.get_time_units = Some(crate::wrapper::get_time_units::<T>);
+    handle.get_time_step = Some(crate::wrapper::get_time_step::<T>);
+    handle.get_value = Some(crate::wrapper::get_value::<T>);
+    handle.get_value_ptr = Some(crate::wrapper::get_value_ptr::<T>);
+    handle.get_value_at_indices = Some(crate::wrapper::get_value_at_indices::<T>);
+    handle.set_value = Some(crate::wrapper::set_value::<T>);
+    handle.set_value_at_indices = Some(crate::wrapper::set_value_at_indices::<T>);
+    handle.get_grid_rank = Some(crate::wrapper::get_grid_rank::<T>);
+    handle.get_grid_size = Some(crate::wrapper::get_grid_size::<T>);
+    handle.get_grid_type = Some(crate::wrapper::get_grid_type::<T>);
+    handle.get_grid_shape = Some(crate::wrapper::get_grid_shape::<T>);
+    handle.get_grid_spacing = Some(crate::wrapper::get_grid_spacing::<T>);
+    handle.get_grid_origin = Some(crate::wrapper::get_grid_origin::<T>);
+    handle.get_grid_x = Some(crate::wrapper::get_grid_x::<T>);
+    handle.get_grid_y = Some(crate::wrapper::get_grid_y::<T>);
+    handle.get_grid_z = Some(crate::wrapper::get_grid_z::<T>);
+    handle.get_grid_node_count = Some(crate::wrapper::get_grid_node_count::<T>);
+    handle.get_grid_edge_count = Some(crate::wrapper::get_grid_edge_count::<T>);
+    handle.get_grid_face_count = Some(crate::wrapper::get_grid_face_count::<T>);
+    handle.get_grid_edge_nodes = Some(crate::wrapper::get_grid_edge_nodes::<T>);
+    handle.get_grid_face_edges = Some(crate::wrapper::get_grid_face_edges::<T>);
+    handle.get_grid_face_nodes = Some(crate::wrapper::get_grid_face_nodes::<T>);
+    handle.get_grid_nodes_per_face = Some(crate::wrapper::get_grid_nodes_per_face::<T>);
 }
