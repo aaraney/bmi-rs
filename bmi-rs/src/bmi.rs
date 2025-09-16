@@ -6,13 +6,6 @@ pub const MAX_VAR_NAME: u32 = 2048;
 pub const MAX_UNITS_NAME: u32 = 2048;
 pub const MAX_TYPE_NAME: u32 = 2048;
 
-#[derive(Debug)]
-pub enum VarType {
-    Int,
-    Float,
-    Double,
-}
-
 // TODO: probably need to mark this non_exhaustive?
 #[derive(Debug)]
 pub enum Location {
