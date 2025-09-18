@@ -267,8 +267,8 @@ pub trait Bmi {
     fn get_component_name(&self) -> &str;
     fn get_input_item_count(&self) -> u32;
     fn get_output_item_count(&self) -> u32;
-    fn get_input_var_names(&self) -> Vec<&str>;
-    fn get_output_var_names(&self) -> Vec<&str>;
+    fn get_input_var_names(&self) -> &[&str];
+    fn get_output_var_names(&self) -> &[&str];
 
     /* Variable information */
     // should this be an option or a Result?
