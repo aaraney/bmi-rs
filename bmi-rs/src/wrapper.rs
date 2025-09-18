@@ -123,16 +123,11 @@ pub extern "C" fn get_input_var_names<T: Bmi>(
     let var_names = data.get_input_var_names();
 
     let name_buffer = unsafe { slice::from_raw_parts_mut(names as *mut *mut u8, var_names.len()) };
-
-    for (c_name, name_buff) in std::iter::zip(c_var_names, name_buffer) {
-        let bytes = c_name.as_bytes_with_nul();
-        // NOTE: I think we can make the slice _as large_ as the bytes buffer
-        // (accounting for the null terminator, of course)
-        let buff = unsafe { slice::from_raw_parts_mut(*name_buff, bytes.len()) };
-        // let buff = unsafe { slice::from_raw_parts_mut(*name_buff, MAX_VAR_NAME) };
-        // ensure slices are the same length. otherwise, this will avoid panic
-        buff.copy_from_slice(bytes);
-        // buff[..bytes.len()].copy_from_slice(bytes);
+    for (var_name, buffer) in std::iter::zip(var_names, name_buffer) {
+        // Safety: for each var, add extra byte to account for null character
+        let buffer = unsafe { slice::from_raw_parts_mut(*buffer as *mut u8, var_name.len() + 1) };
+        buffer[..var_name.len()].copy_from_slice(var_name.as_bytes());
+        buffer[var_name.len()] = 0;
     }
     BMI_SUCCESS
 }
@@ -144,16 +139,11 @@ pub extern "C" fn get_output_var_names<T: Bmi>(
     let data: &mut T = data_field!(&self_);
     let var_names = data.get_output_var_names();
     let name_buffer = unsafe { slice::from_raw_parts_mut(names as *mut *mut u8, var_names.len()) };
-
-    for (c_name, name_buff) in std::iter::zip(c_var_names, name_buffer) {
-        let bytes = c_name.as_bytes_with_nul();
-        // NOTE: I think we can make the slice _as large_ as the bytes buffer
-        // (accounting for the null terminator, of course)
-        let buff = unsafe { slice::from_raw_parts_mut(*name_buff, bytes.len()) };
-        // let buff = unsafe { slice::from_raw_parts_mut(*name_buff, MAX_VAR_NAME) };
-        // ensure slices are the same length. otherwise, this will avoid panic
-        buff.copy_from_slice(bytes);
-        // buff[..bytes.len()].copy_from_slice(bytes);
+    for (var_name, buffer) in std::iter::zip(var_names, name_buffer) {
+        // Safety: for each var, add extra byte to account for null character
+        let buffer = unsafe { slice::from_raw_parts_mut(*buffer as *mut u8, var_name.len() + 1) };
+        buffer[..var_name.len()].copy_from_slice(var_name.as_bytes());
+        buffer[var_name.len()] = 0;
     }
     BMI_SUCCESS
 }
