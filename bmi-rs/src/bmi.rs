@@ -280,6 +280,10 @@ pub trait Bmi {
     fn get_var_itemsize(&self, name: &str) -> BmiResult<u32> {
         Ok(self.get_var_type(name)?.bytes() as u32)
     }
+    fn get_var_nbytes(&self, name: &str) -> BmiResult<u32> {
+        let itemsize = self.get_var_itemsize(name)?;
+        let values = self.get_value_ptr(name)?;
+        Ok(values.len() as u32 * itemsize)
     }
     fn get_var_location(&self, name: &str) -> BmiResult<Location>;
 
