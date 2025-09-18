@@ -249,16 +249,19 @@ impl fmt::Display for BmiNotImplementedError {
 
 impl Error for BmiNotImplementedError {}
 
+pub type BmiResult<T> = Result<T, Box<dyn Error>>;
+
 // TODO: Add docs
 pub trait Bmi {
     /* Initialize, run, finalize (IRF) */
-    fn initialize(&mut self, config_file: &str) -> Result<(), Box<dyn Error>>;
-    fn update(&mut self) -> Result<(), Box<dyn Error>>;
-    fn update_until(&mut self, then: f64) -> Result<(), Box<dyn Error>>;
+    fn initialize(&mut self, config_file: &str) -> BmiResult<()>;
+    fn update(&mut self) -> BmiResult<()>;
+    fn update_until(&mut self, then: f64) -> BmiResult<()>;
     // TODO: I think the semantics will need to be different in the trait.
     // I don't think self should be dropped here.
     // This is just finalization, self will be dropped by the C wrapper.
-    fn finalize(&mut self) -> Result<(), Box<dyn Error>>;
+    // I think this should take just self?
+    fn finalize(&mut self) -> BmiResult<()>;
 
     /* Exchange items */
     fn get_component_name(&self) -> &str;
@@ -269,19 +272,16 @@ pub trait Bmi {
 
     /* Variable information */
     // should this be an option or a Result?
-    fn get_var_grid(&self, name: &str) -> Result<i32, Box<dyn Error>>;
+    fn get_var_grid(&self, name: &str) -> BmiResult<i32>;
     // TODO: we could / should return an enum type here?
     // would need to be non-exhaustive
-    fn get_var_type(&self, name: &str) -> Result<ValueType, Box<dyn Error>>;
-    fn get_var_units(&self, name: &str) -> Result<&str, Box<dyn Error>>;
-    fn get_var_itemsize(&self, name: &str) -> Result<u32, Box<dyn Error>> {
-        return match self.get_var_type(name) {
-            Ok(ty) => Ok(ty.bytes() as u32),
-            Err(e) => Err(e),
-        };
+    fn get_var_type(&self, name: &str) -> BmiResult<ValueType>;
+    fn get_var_units(&self, name: &str) -> BmiResult<&str>;
+    fn get_var_itemsize(&self, name: &str) -> BmiResult<u32> {
+        Ok(self.get_var_type(name)?.bytes() as u32)
     }
-    fn get_var_nbytes(&self, name: &str) -> Result<u32, Box<dyn Error>>;
-    fn get_var_location(&self, name: &str) -> Result<Location, Box<dyn Error>>;
+    }
+    fn get_var_location(&self, name: &str) -> BmiResult<Location>;
 
     /* Time information */
     fn get_current_time(&self) -> f64;
@@ -291,77 +291,68 @@ pub trait Bmi {
     fn get_time_step(&self) -> f64;
 
     /* Getters */
-    fn get_value(&self, name: &str) -> Result<ValueVec, Box<dyn Error>>;
-    // NOTE: not sure if we can use &ValueVec instead. I dont think so
-    fn get_value_ptr<'a>(&'a self, name: &str) -> Result<RefValueVec<'a>, Box<dyn Error>>;
-    fn get_value_at_indices(&self, name: &str, inds: &Vec<u32>)
-    -> Result<ValueVec, Box<dyn Error>>;
+    fn get_value_ptr(&self, name: &str) -> BmiResult<RefValues<'_>>;
+    fn get_value_at_indices(&self, name: &str, inds: &[u32]) -> BmiResult<Values>;
 
     /* Setters */
-    fn set_value(&mut self, name: &str, src: &ValueVec) -> Result<(), Box<dyn Error>>;
-    fn set_value_at_indices(
-        &mut self,
-        name: &str,
-        inds: &Vec<u32>,
-        src: &RefValueVec,
-    ) -> Result<(), Box<dyn Error>>;
+    // NOTE: not sure if 'src' for set_value should be &Values or RefValues
+    fn set_value(&mut self, name: &str, src: RefValues) -> BmiResult<()>;
+    // NOTE: should this be just a 'RefValues' or '&RefValues'?
+    fn set_value_at_indices(&mut self, name: &str, inds: &[u32], src: RefValues) -> BmiResult<()>;
 
     /* Grid information */
-    fn get_grid_rank(&self, _grid: i32) -> Result<u32, Box<dyn Error>> {
+    fn get_grid_rank(&self, _grid: i32) -> BmiResult<u32> {
         return Err(Box::new(BmiNotImplementedError));
     }
-    // TODO: can you have negative size grids? not sure if this should just be a i32
-    fn get_grid_size(&self, _grid: i32) -> Result<u32, Box<dyn Error>> {
+    fn get_grid_size(&self, _grid: i32) -> BmiResult<u32> {
         return Err(Box::new(BmiNotImplementedError));
     }
-    // TODO: _should_ this be an enum too?
-    // fn get_grid_type(&self, grid: usize) -> &str;
-    fn get_grid_type(&self, _grid: i32) -> Result<GridType, Box<dyn Error>> {
+    fn get_grid_type(&self, _grid: i32) -> BmiResult<GridType> {
         return Err(Box::new(BmiNotImplementedError));
     }
 
     /* Uniform rectilinear */
-    fn get_grid_shape(&self, _grid: i32) -> Result<i32, Box<dyn Error>> {
+    fn get_grid_shape(&self, _grid: i32) -> BmiResult<i32> {
         return Err(Box::new(BmiNotImplementedError));
     }
-    fn get_grid_spacing(&self, _grid: i32) -> Result<f64, Box<dyn Error>> {
+    fn get_grid_spacing(&self, _grid: i32) -> BmiResult<f64> {
         return Err(Box::new(BmiNotImplementedError));
     }
-    fn get_grid_origin(&self, _grid: i32) -> Result<f64, Box<dyn Error>> {
+    fn get_grid_origin(&self, _grid: i32) -> BmiResult<f64> {
         return Err(Box::new(BmiNotImplementedError));
     }
 
     /* Non-uniform rectilinear, curvilinear */
-    fn get_grid_x(&self, _grid: i32) -> Result<f64, Box<dyn Error>> {
+    fn get_grid_x(&self, _grid: i32) -> BmiResult<f64> {
         return Err(Box::new(BmiNotImplementedError));
     }
-    fn get_grid_y(&self, _grid: i32) -> Result<f64, Box<dyn Error>> {
+    fn get_grid_y(&self, _grid: i32) -> BmiResult<f64> {
         return Err(Box::new(BmiNotImplementedError));
     }
-    fn get_grid_z(&self, _grid: i32) -> Result<f64, Box<dyn Error>> {
+    fn get_grid_z(&self, _grid: i32) -> BmiResult<f64> {
         return Err(Box::new(BmiNotImplementedError));
     }
 
     /* Unstructured */
-    fn get_grid_node_count(&self, _grid: i32) -> Result<i32, Box<dyn Error>> {
+    fn get_grid_node_count(&self, _grid: i32) -> BmiResult<i32> {
         return Err(Box::new(BmiNotImplementedError));
     }
-    fn get_grid_edge_count(&self, _grid: i32) -> Result<i32, Box<dyn Error>> {
+    fn get_grid_edge_count(&self, _grid: i32) -> BmiResult<i32> {
         return Err(Box::new(BmiNotImplementedError));
     }
-    fn get_grid_face_count(&self, _grid: i32) -> Result<i32, Box<dyn Error>> {
+    fn get_grid_face_count(&self, _grid: i32) -> BmiResult<i32> {
         return Err(Box::new(BmiNotImplementedError));
     }
-    fn get_grid_edge_nodes(&self, _grid: i32) -> Result<i32, Box<dyn Error>> {
+    fn get_grid_edge_nodes(&self, _grid: i32) -> BmiResult<i32> {
         return Err(Box::new(BmiNotImplementedError));
     }
-    fn get_grid_face_edges(&self, _grid: i32) -> Result<i32, Box<dyn Error>> {
+    fn get_grid_face_edges(&self, _grid: i32) -> BmiResult<i32> {
         return Err(Box::new(BmiNotImplementedError));
     }
-    fn get_grid_face_nodes(&self, _grid: i32) -> Result<i32, Box<dyn Error>> {
+    fn get_grid_face_nodes(&self, _grid: i32) -> BmiResult<i32> {
         return Err(Box::new(BmiNotImplementedError));
     }
-    fn get_grid_nodes_per_face(&self, _grid: i32) -> Result<i32, Box<dyn Error>> {
+    fn get_grid_nodes_per_face(&self, _grid: i32) -> BmiResult<i32> {
         return Err(Box::new(BmiNotImplementedError));
     }
 }
