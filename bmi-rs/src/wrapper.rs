@@ -85,10 +85,16 @@ pub extern "C" fn update_until<T: Bmi>(self_: *mut ffi::Bmi, then: c_double) -> 
 }
 
 pub extern "C" fn finalize<T: Bmi>(self_: *mut ffi::Bmi) -> c_int {
-    let data: &mut T = into(&self_);
-    // drop data field
-    let _ = unsafe { Box::from_raw(data as *mut T) };
-    return BMI_SUCCESS;
+    let s = unsafe { &mut *self_ };
+    let data: &mut T = data_field!(&self_);
+    // NOTE: im not sure if this is semantically correct?
+    let _ = data.finalize();
+    {
+        // drop data field
+        let _ = unsafe { Box::from_raw(data as *mut T) };
+    }
+    s.data = std::ptr::null_mut();
+    BMI_SUCCESS
 }
 
 pub extern "C" fn get_component_name<T: Bmi>(self_: *mut ffi::Bmi, name: *mut c_char) -> c_int {
