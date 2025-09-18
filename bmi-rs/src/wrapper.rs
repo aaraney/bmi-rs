@@ -1,4 +1,4 @@
-use crate::bmi::{Bmi, RefValueVec, ValueType, ValueVec};
+use crate::bmi::{Bmi, RefValues, ValueType, Values};
 use ffi::{BMI_FAILURE, BMI_SUCCESS};
 use std::ffi::{
     CStr, CString, c_char, c_double, c_float, c_int, c_long, c_short, c_uint, c_ulong, c_ushort,

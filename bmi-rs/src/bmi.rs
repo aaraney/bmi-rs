@@ -71,9 +71,9 @@ impl ValueType {
     }
 }
 
-// See: https://github.com/NOAA-OWP/ngen/blob/52f43540239e202328c7c9350149f9f5b8f1f409/include/realizations/catchment/Bmi_Module_Formulation.hpp#L779
+// NOTE: use a more generic container type than Vec<T>
 #[derive(Debug)]
-pub enum ValueVec {
+pub enum Values {
     I16(Vec<i16>), // short
     U16(Vec<u16>), // unsigned short
     I32(Vec<i32>), // usually int
@@ -84,157 +84,128 @@ pub enum ValueVec {
     F64(Vec<f64>), // double
 }
 
-impl ValueVec {
-    pub fn value_type(&self) -> ValueType {
-        match self {
-            ValueVec::I16(_) => ValueType::I16,
-            ValueVec::U16(_) => ValueType::U16,
-            ValueVec::I32(_) => ValueType::I32,
-            ValueVec::U32(_) => ValueType::U32,
-            ValueVec::I64(_) => ValueType::I64,
-            ValueVec::U64(_) => ValueType::U64,
-            ValueVec::F32(_) => ValueType::F32,
-            ValueVec::F64(_) => ValueType::F64,
+impl<'a> From<&'a Values> for RefValues<'a> {
+    fn from(value: &'a Values) -> Self {
+        match value {
+            Values::I16(items) => RefValues::I16(&items),
+            Values::U16(items) => RefValues::U16(&items),
+            Values::I32(items) => RefValues::I32(&items),
+            Values::U32(items) => RefValues::U32(&items),
+            Values::I64(items) => RefValues::I64(&items),
+            Values::U64(items) => RefValues::U64(&items),
+            Values::F32(items) => RefValues::F32(&items),
+            Values::F64(items) => RefValues::F64(&items),
         }
     }
 }
 
-impl From<Vec<i16>> for ValueVec {
-    fn from(v: Vec<i16>) -> Self {
-        ValueVec::I16(v)
-    }
-}
-impl From<Vec<u16>> for ValueVec {
-    fn from(v: Vec<u16>) -> Self {
-        ValueVec::U16(v)
-    }
-}
-impl From<Vec<u32>> for ValueVec {
-    fn from(v: Vec<u32>) -> Self {
-        ValueVec::U32(v)
-    }
-}
-impl From<Vec<i32>> for ValueVec {
-    fn from(v: Vec<i32>) -> Self {
-        ValueVec::I32(v)
-    }
-}
-impl From<Vec<u64>> for ValueVec {
-    fn from(v: Vec<u64>) -> Self {
-        ValueVec::U64(v)
-    }
-}
-impl From<Vec<i64>> for ValueVec {
-    fn from(v: Vec<i64>) -> Self {
-        ValueVec::I64(v)
-    }
-}
-impl From<Vec<f32>> for ValueVec {
-    fn from(v: Vec<f32>) -> Self {
-        ValueVec::F32(v)
-    }
-}
-impl From<Vec<f64>> for ValueVec {
-    fn from(v: Vec<f64>) -> Self {
-        ValueVec::F64(v)
-    }
-}
-
-impl ValueVec {
-    pub fn len(&self) -> usize {
-        match self {
-            ValueVec::I16(v) => v.len(),
-            ValueVec::U16(v) => v.len(),
-            ValueVec::I32(v) => v.len(),
-            ValueVec::U32(v) => v.len(),
-            ValueVec::I64(v) => v.len(),
-            ValueVec::U64(v) => v.len(),
-            ValueVec::F32(v) => v.len(),
-            ValueVec::F64(v) => v.len(),
+macro_rules! impl_value_type {
+    ($t:ty; $($name:ident),*$(,)?) => {
+        impl $t {
+            pub fn value_type(&self) -> ValueType {
+                match self {
+                    $(Self::$name(_) => ValueType::$name,)*
+                }
+            }
         }
-    }
+    };
 }
 
+macro_rules! impl_len {
+    ($t:ty; $($name:ident),*$(,)?) => {
+        impl $t {
+            pub fn len(&self) -> usize {
+                match self {
+                    $(Self::$name(v) => v.len(),)*
+                }
+            }
+        }
+    };
+}
+
+macro_rules! impl_from_vec_for_values {
+    ($($name:ident; $t:ty),*$(,)?) => {
+        $(
+        impl From<Vec<$t>> for Values {
+            fn from(v: Vec<$t>) -> Self {
+                Values::$name(v)
+            }
+        }
+    )*
+    };
+}
+
+impl_from_vec_for_values!(
+    I16;i16,
+    U16;u16,
+    I32;i32,
+    U32;u32,
+    I64;i64,
+    U64;u64,
+    F32;f32,
+    F64;f64,
+);
+impl_value_type!(Values; I16, U16, I32, U32, I64, U64, F32, F64,);
+impl_len!(Values; I16, U16, I32, U32, I64, U64, F32, F64,);
+
+// See: https://github.com/NOAA-OWP/ngen/blob/52f43540239e202328c7c9350149f9f5b8f1f409/include/realizations/catchment/Bmi_Module_Formulation.hpp#L779
 #[derive(Debug)]
-pub enum RefValueVec<'a> {
-    I16(&'a Vec<i16>), // short
-    U16(&'a Vec<u16>), // unsigned short
-    I32(&'a Vec<i32>), // usually int
-    U32(&'a Vec<u32>), // usually unsigned int
-    I64(&'a Vec<i64>), // long or usually long long
-    U64(&'a Vec<u64>), // unsigned long or usually unsigned long long
-    F32(&'a Vec<f32>), // float
-    F64(&'a Vec<f64>), // double
+pub enum RefValues<'a> {
+    I16(&'a [i16]), // short
+    U16(&'a [u16]), // unsigned short
+    I32(&'a [i32]), // usually int
+    U32(&'a [u32]), // usually unsigned int
+    I64(&'a [i64]), // long or usually long long
+    U64(&'a [u64]), // unsigned long or usually unsigned long long
+    F32(&'a [f32]), // float
+    F64(&'a [f64]), // double
 }
 
-impl<'a> From<&'a Vec<i16>> for RefValueVec<'a> {
-    fn from(v: &'a Vec<i16>) -> Self {
-        RefValueVec::I16(v)
-    }
-}
-impl<'a> From<&'a Vec<u16>> for RefValueVec<'a> {
-    fn from(v: &'a Vec<u16>) -> Self {
-        RefValueVec::U16(v)
-    }
-}
-impl<'a> From<&'a Vec<u32>> for RefValueVec<'a> {
-    fn from(v: &'a Vec<u32>) -> Self {
-        RefValueVec::U32(v)
-    }
-}
-impl<'a> From<&'a Vec<i32>> for RefValueVec<'a> {
-    fn from(v: &'a Vec<i32>) -> Self {
-        RefValueVec::I32(v)
-    }
-}
-impl<'a> From<&'a Vec<u64>> for RefValueVec<'a> {
-    fn from(v: &'a Vec<u64>) -> Self {
-        RefValueVec::U64(v)
-    }
-}
-impl<'a> From<&'a Vec<i64>> for RefValueVec<'a> {
-    fn from(v: &'a Vec<i64>) -> Self {
-        RefValueVec::I64(v)
-    }
-}
-impl<'a> From<&'a Vec<f32>> for RefValueVec<'a> {
-    fn from(v: &'a Vec<f32>) -> Self {
-        RefValueVec::F32(v)
-    }
-}
-impl<'a> From<&'a Vec<f64>> for RefValueVec<'a> {
-    fn from(v: &'a Vec<f64>) -> Self {
-        RefValueVec::F64(v)
-    }
-}
-
-impl<'a> RefValueVec<'a> {
-    pub fn len(&'a self) -> usize {
-        match self {
-            RefValueVec::I16(v) => v.len(),
-            RefValueVec::U16(v) => v.len(),
-            RefValueVec::I32(v) => v.len(),
-            RefValueVec::U32(v) => v.len(),
-            RefValueVec::I64(v) => v.len(),
-            RefValueVec::U64(v) => v.len(),
-            RefValueVec::F32(v) => v.len(),
-            RefValueVec::F64(v) => v.len(),
+macro_rules! impl_from_ref_t_for_ref_values {
+    ($container:ident; $($name:ident; $t:ty),*$(,)?) => {
+    $(
+        impl<'a> From<&'a $container<$t>> for RefValues<'a> {
+            fn from(v: &'a Vec<$t>) -> Self {
+                RefValues::$name(v)
+            }
         }
-    }
-
-    pub fn value_type(&'a self) -> ValueType {
-        match self {
-            RefValueVec::I16(_) => ValueType::I16,
-            RefValueVec::U16(_) => ValueType::U16,
-            RefValueVec::I32(_) => ValueType::I32,
-            RefValueVec::U32(_) => ValueType::U32,
-            RefValueVec::I64(_) => ValueType::I64,
-            RefValueVec::U64(_) => ValueType::U64,
-            RefValueVec::F32(_) => ValueType::F32,
-            RefValueVec::F64(_) => ValueType::F64,
+    )*
+    };
+    ($($name:ident; $t:ty),*$(,)?) => {
+    $(
+        impl<'a> From<&'a [$t]> for RefValues<'a> {
+            fn from(v: &'a [$t]) -> Self {
+                RefValues::$name(v)
+            }
         }
-    }
+    )*
+    };
 }
+impl_from_ref_t_for_ref_values!(
+    Vec;
+    I16;i16,
+    U16;u16,
+    I32;i32,
+    U32;u32,
+    I64;i64,
+    U64;u64,
+    F32;f32,
+    F64;f64,
+);
+
+impl_from_ref_t_for_ref_values!(
+    I16;i16,
+    U16;u16,
+    I32;i32,
+    U32;u32,
+    I64;i64,
+    U64;u64,
+    F32;f32,
+    F64;f64,
+);
+
+impl_len!(RefValues<'_>; I16, U16, I32, U32, I64, U64, F32, F64,);
+impl_value_type!(RefValues<'_>; I16, U16, I32, U32, I64, U64, F32, F64,);
 
 // TODO: revisit this.
 // not sure if im happy with it or not.
