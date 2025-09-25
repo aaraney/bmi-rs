@@ -266,6 +266,7 @@ pub trait Bmi {
     fn get_time_step(&self) -> f64;
 
     /* Getters */
+    fn get_value(&self, name: &str) -> BmiResult<Values>;
     fn get_value_ptr(&self, name: &str) -> BmiResult<RefValues<'_>>;
     fn get_value_at_indices(&self, name: &str, inds: &[u32]) -> BmiResult<Values>;
 
