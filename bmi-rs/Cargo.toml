@@ -3,12 +3,13 @@ name = "bmi-rs"
 version = "0.0.1"
 edition = "2024"
 
-description = "Bindings for the CSDMS Basic Model Interface (BMI)"
+description = "Library for exposing numerical models over the CSDMS Basic Model Interface (BMI)."
 readme = "../README.md"
 authors = ["Austin Raney <araney@lynker.com>"]
 license = "MIT"
 
 homepage = "https://github.com/aaraney/bmi-rs"
+repository = "https://github.com/aaraney/bmi-rs"
 
 
 [dependencies]
