@@ -613,7 +613,7 @@ pub trait Bmi {
     ///
     /// [`get_grid_rank`]: #tymethod.get_grid_rank
     #[allow(unused_variables)]
-    fn get_grid_shape(&self, grid: i32) -> BmiResult<i32> {
+    fn get_grid_shape(&self, grid: i32) -> BmiResult<&[u32]> {
         BmiNotImplementedError.into()
     }
 
@@ -632,7 +632,7 @@ pub trait Bmi {
     /// [csdms bmi `get_grid_spacing`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-spacing)
     /// docs for more info.
     #[allow(unused_variables)]
-    fn get_grid_spacing(&self, grid: i32) -> BmiResult<f64> {
+    fn get_grid_spacing(&self, grid: i32) -> BmiResult<&[f64]> {
         BmiNotImplementedError.into()
     }
 
@@ -649,7 +649,7 @@ pub trait Bmi {
     /// [csdms bmi `get_grid_origin`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-origin)
     /// docs for more info.
     #[allow(unused_variables)]
-    fn get_grid_origin(&self, grid: i32) -> BmiResult<f64> {
+    fn get_grid_origin(&self, grid: i32) -> BmiResult<&[f64]> {
         BmiNotImplementedError.into()
     }
 
@@ -662,7 +662,7 @@ pub trait Bmi {
     /// [csdms bmi `get_grid_rank`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-rank)
     /// docs for more info.
     #[allow(unused_variables)]
-    fn get_grid_x(&self, grid: i32) -> BmiResult<f64> {
+    fn get_grid_x(&self, grid: i32) -> BmiResult<&[f64]> {
         BmiNotImplementedError.into()
     }
 
@@ -674,7 +674,7 @@ pub trait Bmi {
     /// [csdms bmi `get_grid_rank`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-rank)
     /// docs for more info.
     #[allow(unused_variables)]
-    fn get_grid_y(&self, grid: i32) -> BmiResult<f64> {
+    fn get_grid_y(&self, grid: i32) -> BmiResult<&[f64]> {
         BmiNotImplementedError.into()
     }
 
@@ -686,7 +686,7 @@ pub trait Bmi {
     /// [csdms bmi `get_grid_rank`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-rank)
     /// docs for more info.
     #[allow(unused_variables)]
-    fn get_grid_z(&self, grid: i32) -> BmiResult<f64> {
+    fn get_grid_z(&self, grid: i32) -> BmiResult<&[f64]> {
         BmiNotImplementedError.into()
     }
 
@@ -745,7 +745,7 @@ pub trait Bmi {
         BmiNotImplementedError.into()
     }
 
-    // FIXME: should return &[u32]
+    // FIXME: should return &[u32]; not sure if this should be signed or unsigned
     /// Return the edge-node connectivity.
     /// The total length of the slice is 2 * [`get_grid_edge_count`].
     ///
@@ -761,11 +761,11 @@ pub trait Bmi {
     ///
     /// [`get_grid_edge_count`]: #tymethod.get_grid_edge_count
     #[allow(unused_variables)]
-    fn get_grid_edge_nodes(&self, grid: i32) -> BmiResult<i32> {
+    fn get_grid_edge_nodes(&self, grid: i32) -> BmiResult<&[i32]> {
         BmiNotImplementedError.into()
     }
 
-    // FIXME: should return &[u32]
+    // FIXME: should return &[u32]; not sure if this should be signed or unsigned
     /// Return the face-edge connectivity.
     /// The length of the returned slice is the sum of the values of [`get_grid_nodes_per_face`].
     ///
@@ -781,11 +781,11 @@ pub trait Bmi {
     ///
     /// [`get_grid_nodes_per_face`]: #tymethod.get_grid_nodes_per_face
     #[allow(unused_variables)]
-    fn get_grid_face_edges(&self, grid: i32) -> BmiResult<i32> {
+    fn get_grid_face_edges(&self, grid: i32) -> BmiResult<&[i32]> {
         BmiNotImplementedError.into()
     }
 
-    // FIXME: should return &[u32]
+    // FIXME: should return &[u32]; not sure if this should be signed or unsigned
     /// Return the face-node connectivity.
     ///
     /// This function is used for describing
@@ -798,11 +798,11 @@ pub trait Bmi {
     /// [csdms bmi `get_grid_face_nodes`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-face-nodes)
     /// docs for more info.
     #[allow(unused_variables)]
-    fn get_grid_face_nodes(&self, grid: i32) -> BmiResult<i32> {
+    fn get_grid_face_nodes(&self, grid: i32) -> BmiResult<&[i32]> {
         BmiNotImplementedError.into()
     }
 
-    // FIXME: should return &[u32]
+    // FIXME: should return &[u32]; I think this is OK as unsigned?
     /// Return the number of nodes for each face.
     /// The returned array has a length of [`get_grid_face_count`].
     ///
@@ -818,7 +818,7 @@ pub trait Bmi {
     ///
     /// [`get_grid_face_count`]: #tymethod.get_grid_face_count
     #[allow(unused_variables)]
-    fn get_grid_nodes_per_face(&self, grid: i32) -> BmiResult<i32> {
+    fn get_grid_nodes_per_face(&self, grid: i32) -> BmiResult<&[u32]> {
         BmiNotImplementedError.into()
     }
 }
