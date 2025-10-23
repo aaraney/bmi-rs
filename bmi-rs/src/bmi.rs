@@ -598,7 +598,6 @@ pub trait Bmi {
     }
 
     /* Uniform rectilinear */
-    // FIXME: `get_grid_shape` should return a &[u32], I think? maybe an owned Vec<u32>?
     /// Return the dimensions of the model grid for a given a grid identifier.
     /// The length of the returned slice is [`get_grid_rank`] long.
     ///
@@ -613,11 +612,10 @@ pub trait Bmi {
     ///
     /// [`get_grid_rank`]: #tymethod.get_grid_rank
     #[allow(unused_variables)]
-    fn get_grid_shape(&self, grid: i32) -> BmiResult<i32> {
+    fn get_grid_shape(&self, grid: i32) -> BmiResult<&[u32]> {
         BmiNotImplementedError.into()
     }
 
-    // FIXME: `get_grid_spacing` should return a &[f64], I think? maybe an owned Vec<f64>?
     /// Return the distance between the
     /// [nodes](https://bmi.csdms.io/en/stable/glossary.html#term-node)
     /// of the model grid.
@@ -632,11 +630,10 @@ pub trait Bmi {
     /// [csdms bmi `get_grid_spacing`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-spacing)
     /// docs for more info.
     #[allow(unused_variables)]
-    fn get_grid_spacing(&self, grid: i32) -> BmiResult<f64> {
+    fn get_grid_spacing(&self, grid: i32) -> BmiResult<&[f64]> {
         BmiNotImplementedError.into()
     }
 
-    // FIXME: `get_grid_origin` should return a &[f64], I think? maybe an owned Vec<f64>?
     /// Return the coordinates of the lower-left corner of the model grid.
     ///
     /// This function is used for describing
@@ -649,7 +646,7 @@ pub trait Bmi {
     /// [csdms bmi `get_grid_origin`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-origin)
     /// docs for more info.
     #[allow(unused_variables)]
-    fn get_grid_origin(&self, grid: i32) -> BmiResult<f64> {
+    fn get_grid_origin(&self, grid: i32) -> BmiResult<&[f64]> {
         BmiNotImplementedError.into()
     }
 
@@ -662,7 +659,7 @@ pub trait Bmi {
     /// [csdms bmi `get_grid_rank`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-rank)
     /// docs for more info.
     #[allow(unused_variables)]
-    fn get_grid_x(&self, grid: i32) -> BmiResult<f64> {
+    fn get_grid_x(&self, grid: i32) -> BmiResult<&[f64]> {
         BmiNotImplementedError.into()
     }
 
@@ -674,7 +671,7 @@ pub trait Bmi {
     /// [csdms bmi `get_grid_rank`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-rank)
     /// docs for more info.
     #[allow(unused_variables)]
-    fn get_grid_y(&self, grid: i32) -> BmiResult<f64> {
+    fn get_grid_y(&self, grid: i32) -> BmiResult<&[f64]> {
         BmiNotImplementedError.into()
     }
 
@@ -686,7 +683,7 @@ pub trait Bmi {
     /// [csdms bmi `get_grid_rank`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-rank)
     /// docs for more info.
     #[allow(unused_variables)]
-    fn get_grid_z(&self, grid: i32) -> BmiResult<f64> {
+    fn get_grid_z(&self, grid: i32) -> BmiResult<&[f64]> {
         BmiNotImplementedError.into()
     }
 
@@ -705,7 +702,7 @@ pub trait Bmi {
     /// [csdms bmi `get_grid_node_count`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-node-count)
     /// docs for more info.
     #[allow(unused_variables)]
-    fn get_grid_node_count(&self, grid: i32) -> BmiResult<i32> {
+    fn get_grid_node_count(&self, grid: i32) -> BmiResult<u32> {
         BmiNotImplementedError.into()
     }
 
@@ -723,7 +720,7 @@ pub trait Bmi {
     /// [csdms bmi `get_grid_edge_count`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-edge-count)
     /// docs for more info.
     #[allow(unused_variables)]
-    fn get_grid_edge_count(&self, grid: i32) -> BmiResult<i32> {
+    fn get_grid_edge_count(&self, grid: i32) -> BmiResult<u32> {
         BmiNotImplementedError.into()
     }
 
@@ -741,11 +738,10 @@ pub trait Bmi {
     /// [csdms bmi `get_grid_face_count`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-face-count)
     /// docs for more info.
     #[allow(unused_variables)]
-    fn get_grid_face_count(&self, grid: i32) -> BmiResult<i32> {
+    fn get_grid_face_count(&self, grid: i32) -> BmiResult<u32> {
         BmiNotImplementedError.into()
     }
 
-    // FIXME: should return &[u32]
     /// Return the edge-node connectivity.
     /// The total length of the slice is 2 * [`get_grid_edge_count`].
     ///
@@ -761,11 +757,10 @@ pub trait Bmi {
     ///
     /// [`get_grid_edge_count`]: #tymethod.get_grid_edge_count
     #[allow(unused_variables)]
-    fn get_grid_edge_nodes(&self, grid: i32) -> BmiResult<i32> {
+    fn get_grid_edge_nodes(&self, grid: i32) -> BmiResult<&[u32]> {
         BmiNotImplementedError.into()
     }
 
-    // FIXME: should return &[u32]
     /// Return the face-edge connectivity.
     /// The length of the returned slice is the sum of the values of [`get_grid_nodes_per_face`].
     ///
@@ -781,11 +776,10 @@ pub trait Bmi {
     ///
     /// [`get_grid_nodes_per_face`]: #tymethod.get_grid_nodes_per_face
     #[allow(unused_variables)]
-    fn get_grid_face_edges(&self, grid: i32) -> BmiResult<i32> {
+    fn get_grid_face_edges(&self, grid: i32) -> BmiResult<&[u32]> {
         BmiNotImplementedError.into()
     }
 
-    // FIXME: should return &[u32]
     /// Return the face-node connectivity.
     ///
     /// This function is used for describing
@@ -798,11 +792,10 @@ pub trait Bmi {
     /// [csdms bmi `get_grid_face_nodes`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-face-nodes)
     /// docs for more info.
     #[allow(unused_variables)]
-    fn get_grid_face_nodes(&self, grid: i32) -> BmiResult<i32> {
+    fn get_grid_face_nodes(&self, grid: i32) -> BmiResult<&[u32]> {
         BmiNotImplementedError.into()
     }
 
-    // FIXME: should return &[u32]
     /// Return the number of nodes for each face.
     /// The returned array has a length of [`get_grid_face_count`].
     ///
@@ -818,7 +811,7 @@ pub trait Bmi {
     ///
     /// [`get_grid_face_count`]: #tymethod.get_grid_face_count
     #[allow(unused_variables)]
-    fn get_grid_nodes_per_face(&self, grid: i32) -> BmiResult<i32> {
+    fn get_grid_nodes_per_face(&self, grid: i32) -> BmiResult<&[u32]> {
         BmiNotImplementedError.into()
     }
 }
