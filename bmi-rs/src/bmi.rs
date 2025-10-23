@@ -564,7 +564,8 @@ pub trait Bmi {
     /// See
     /// [csdms bmi `get_grid_type`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-type)
     /// docs for more info.
-    fn get_grid_type(&self, _grid: i32) -> BmiResult<GridType> {
+    #[allow(unused_variables)]
+    fn get_grid_type(&self, grid: i32) -> BmiResult<GridType> {
         BmiNotImplementedError.into()
     }
 
@@ -580,7 +581,8 @@ pub trait Bmi {
     /// See
     /// [csdms bmi `get_grid_rank`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-rank)
     /// docs for more info.
-    fn get_grid_rank(&self, _grid: i32) -> BmiResult<u32> {
+    #[allow(unused_variables)]
+    fn get_grid_rank(&self, grid: i32) -> BmiResult<u32> {
         BmiNotImplementedError.into()
     }
 
@@ -596,7 +598,8 @@ pub trait Bmi {
     /// See
     /// [csdms bmi `get_grid_size`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-size)
     /// docs for more info.
-    fn get_grid_size(&self, _grid: i32) -> BmiResult<u32> {
+    #[allow(unused_variables)]
+    fn get_grid_size(&self, grid: i32) -> BmiResult<u32> {
         BmiNotImplementedError.into()
     }
 
@@ -615,7 +618,8 @@ pub trait Bmi {
     /// docs for more info.
     ///
     /// [`get_grid_rank`]: #tymethod.get_grid_rank
-    fn get_grid_shape(&self, _grid: i32) -> BmiResult<i32> {
+    #[allow(unused_variables)]
+    fn get_grid_shape(&self, grid: i32) -> BmiResult<i32> {
         BmiNotImplementedError.into()
     }
 
@@ -633,7 +637,8 @@ pub trait Bmi {
     /// See
     /// [csdms bmi `get_grid_spacing`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-spacing)
     /// docs for more info.
-    fn get_grid_spacing(&self, _grid: i32) -> BmiResult<f64> {
+    #[allow(unused_variables)]
+    fn get_grid_spacing(&self, grid: i32) -> BmiResult<f64> {
         BmiNotImplementedError.into()
     }
 
@@ -649,7 +654,8 @@ pub trait Bmi {
     /// See
     /// [csdms bmi `get_grid_origin`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-origin)
     /// docs for more info.
-    fn get_grid_origin(&self, _grid: i32) -> BmiResult<f64> {
+    #[allow(unused_variables)]
+    fn get_grid_origin(&self, grid: i32) -> BmiResult<f64> {
         BmiNotImplementedError.into()
     }
 
@@ -661,7 +667,8 @@ pub trait Bmi {
     /// See
     /// [csdms bmi `get_grid_rank`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-rank)
     /// docs for more info.
-    fn get_grid_x(&self, _grid: i32) -> BmiResult<f64> {
+    #[allow(unused_variables)]
+    fn get_grid_x(&self, grid: i32) -> BmiResult<f64> {
         BmiNotImplementedError.into()
     }
 
@@ -672,7 +679,8 @@ pub trait Bmi {
     /// See
     /// [csdms bmi `get_grid_rank`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-rank)
     /// docs for more info.
-    fn get_grid_y(&self, _grid: i32) -> BmiResult<f64> {
+    #[allow(unused_variables)]
+    fn get_grid_y(&self, grid: i32) -> BmiResult<f64> {
         BmiNotImplementedError.into()
     }
 
@@ -683,7 +691,8 @@ pub trait Bmi {
     /// See
     /// [csdms bmi `get_grid_rank`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-rank)
     /// docs for more info.
-    fn get_grid_z(&self, _grid: i32) -> BmiResult<f64> {
+    #[allow(unused_variables)]
+    fn get_grid_z(&self, grid: i32) -> BmiResult<f64> {
         BmiNotImplementedError.into()
     }
 
@@ -701,7 +710,8 @@ pub trait Bmi {
     /// See
     /// [csdms bmi `get_grid_node_count`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-node-count)
     /// docs for more info.
-    fn get_grid_node_count(&self, _grid: i32) -> BmiResult<i32> {
+    #[allow(unused_variables)]
+    fn get_grid_node_count(&self, grid: i32) -> BmiResult<i32> {
         BmiNotImplementedError.into()
     }
 
@@ -718,7 +728,8 @@ pub trait Bmi {
     /// See
     /// [csdms bmi `get_grid_edge_count`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-edge-count)
     /// docs for more info.
-    fn get_grid_edge_count(&self, _grid: i32) -> BmiResult<i32> {
+    #[allow(unused_variables)]
+    fn get_grid_edge_count(&self, grid: i32) -> BmiResult<i32> {
         BmiNotImplementedError.into()
     }
 
@@ -735,7 +746,8 @@ pub trait Bmi {
     /// See
     /// [csdms bmi `get_grid_face_count`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-face-count)
     /// docs for more info.
-    fn get_grid_face_count(&self, _grid: i32) -> BmiResult<i32> {
+    #[allow(unused_variables)]
+    fn get_grid_face_count(&self, grid: i32) -> BmiResult<i32> {
         BmiNotImplementedError.into()
     }
 
@@ -754,7 +766,8 @@ pub trait Bmi {
     /// docs for more info.
     ///
     /// [`get_grid_edge_count`]: #tymethod.get_grid_edge_count
-    fn get_grid_edge_nodes(&self, _grid: i32) -> BmiResult<i32> {
+    #[allow(unused_variables)]
+    fn get_grid_edge_nodes(&self, grid: i32) -> BmiResult<i32> {
         BmiNotImplementedError.into()
     }
 
@@ -773,7 +786,8 @@ pub trait Bmi {
     /// docs for more info.
     ///
     /// [`get_grid_nodes_per_face`]: #tymethod.get_grid_nodes_per_face
-    fn get_grid_face_edges(&self, _grid: i32) -> BmiResult<i32> {
+    #[allow(unused_variables)]
+    fn get_grid_face_edges(&self, grid: i32) -> BmiResult<i32> {
         BmiNotImplementedError.into()
     }
 
@@ -789,7 +803,8 @@ pub trait Bmi {
     /// See
     /// [csdms bmi `get_grid_face_nodes`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-face-nodes)
     /// docs for more info.
-    fn get_grid_face_nodes(&self, _grid: i32) -> BmiResult<i32> {
+    #[allow(unused_variables)]
+    fn get_grid_face_nodes(&self, grid: i32) -> BmiResult<i32> {
         BmiNotImplementedError.into()
     }
 
@@ -808,7 +823,8 @@ pub trait Bmi {
     /// docs for more info.
     ///
     /// [`get_grid_face_count`]: #tymethod.get_grid_face_count
-    fn get_grid_nodes_per_face(&self, _grid: i32) -> BmiResult<i32> {
+    #[allow(unused_variables)]
+    fn get_grid_nodes_per_face(&self, grid: i32) -> BmiResult<i32> {
         BmiNotImplementedError.into()
     }
 }
