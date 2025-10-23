@@ -419,19 +419,13 @@ pub trait Bmi {
         Ok(self.get_var_type(name)?.bytes() as u32)
     }
 
-    // FIXME: I don't think we can provide a default implementation here b.c. input variables are
-    // not guaranteed to be exposed over `get_value_ptr`
     /// Return the total number of bytes used to store a variable.
     /// i.e., the number of items multiplied by the size of each item.
     ///
     /// See
     /// [csdms bmi `get_var_nbytes`](https://bmi.csdms.io/en/stable/bmi.var_funcs.html#get-var-nbytes)
     /// docs for more info.
-    fn get_var_nbytes(&self, name: &str) -> BmiResult<u32> {
-        let itemsize = self.get_var_itemsize(name)?;
-        let values = self.get_value_ptr(name)?;
-        Ok(values.len() as u32 * itemsize)
-    }
+    fn get_var_nbytes(&self, name: &str) -> BmiResult<u32>;
 
     /// Return a variable's grid element type.
     ///
