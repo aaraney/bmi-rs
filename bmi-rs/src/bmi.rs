@@ -651,36 +651,69 @@ pub trait Bmi {
     }
 
     /* Non-uniform rectilinear, curvilinear */
-    // FIXME: should return a &[f64], I think? maybe an owned Vec<f64>?
+    /// Return locations of the grid
+    /// [nodes](https://bmi.csdms.io/en/stable/glossary.html#term-node)
+    /// in the first coordinate direction.
+    ///
+    /// The length of the resulting one-dimensional array depends on the grid type.
+    ///
+    /// This function is used for describing
+    /// [rectilinear](https://bmi.csdms.io/en/stable/model_grids.html#rectilinear),
+    /// [structured quadrilateral](https://bmi.csdms.io/en/stable/model_grids.html#structured-quad),
+    /// and all
+    /// [unstructured](https://bmi.csdms.io/en/stable/model_grids.html#unstructured-grids)
+    /// grids.
     ///
     /// Default implementation returns Err([`BmiNotImplementedError`]).
     ///
     /// See
-    /// [csdms bmi `get_grid_rank`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-rank)
+    /// [csdms bmi `get_grid_rank`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-x)
     /// docs for more info.
     #[allow(unused_variables)]
     fn get_grid_x(&self, grid: i32) -> BmiResult<&[f64]> {
         BmiNotImplementedError.into()
     }
 
-    // FIXME: should return a &[f64], I think? maybe an owned Vec<f64>?
+    /// Return locations of the grid
+    /// [nodes](https://bmi.csdms.io/en/stable/glossary.html#term-node)
+    /// in the second coordinate direction.
+    ///
+    /// The length of the resulting one-dimensional array depends on the grid type.
+    ///
+    /// This function is used for describing
+    /// [rectilinear](https://bmi.csdms.io/en/stable/model_grids.html#rectilinear),
+    /// [structured quadrilateral](https://bmi.csdms.io/en/stable/model_grids.html#structured-quad),
+    /// and all
+    /// [unstructured](https://bmi.csdms.io/en/stable/model_grids.html#unstructured-grids)
+    /// grids.
     ///
     /// Default implementation returns Err([`BmiNotImplementedError`]).
     ///
     /// See
-    /// [csdms bmi `get_grid_rank`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-rank)
+    /// [csdms bmi `get_grid_rank`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-y)
     /// docs for more info.
     #[allow(unused_variables)]
     fn get_grid_y(&self, grid: i32) -> BmiResult<&[f64]> {
         BmiNotImplementedError.into()
     }
 
-    // FIXME: should return a &[f64], I think? maybe an owned Vec<f64>?
+    /// Return locations of the grid
+    /// [nodes](https://bmi.csdms.io/en/stable/glossary.html#term-node)
+    /// in the third coordinate direction.
+    ///
+    /// The length of the resulting one-dimensional array depends on the grid type.
+    ///
+    /// This function is used for describing
+    /// [rectilinear](https://bmi.csdms.io/en/stable/model_grids.html#rectilinear),
+    /// [structured quadrilateral](https://bmi.csdms.io/en/stable/model_grids.html#structured-quad),
+    /// and all
+    /// [unstructured](https://bmi.csdms.io/en/stable/model_grids.html#unstructured-grids)
+    /// grids.
     ///
     /// Default implementation returns Err([`BmiNotImplementedError`]).
     ///
     /// See
-    /// [csdms bmi `get_grid_rank`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-rank)
+    /// [csdms bmi `get_grid_rank`](https://bmi.csdms.io/en/stable/bmi.grid_funcs.html#get-grid-z)
     /// docs for more info.
     #[allow(unused_variables)]
     fn get_grid_z(&self, grid: i32) -> BmiResult<&[f64]> {
@@ -821,11 +854,11 @@ pub trait Bmi {
 /// interface.
 ///
 /// Example:
-/// ```rust
+/// ```compile_fail
 /// #[unsafe(no_mangle)]
-///  pub extern "C" fn register_bmi_simple(handle: *mut bmi_rs_sys::Bmi) -> *mut bmi_rs_sys::Bmi {
+///  pub extern "C" fn register_bmi_simple(handle: *mut ffi::Bmi) -> *mut ffi::Bmi {
 ///      let model = Model::new();
-///      bmi_rs::bmi::register_model(handle, model);
+///      bmi_rs::register_model(handle, model);
 ///      return handle;
 ///  }
 ///  ```
