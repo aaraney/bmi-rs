@@ -46,6 +46,106 @@ macro_rules! ok_or_fail {
     }};
 }
 
+macro_rules! copy_from_slice {
+    ($dest:ident, $value:expr, $ctype: ty) => {{
+        let value_slice = unsafe { slice::from_raw_parts_mut($dest as *mut $ctype, $value.len()) };
+        value_slice.copy_from_slice($value);
+    }};
+}
+
+macro_rules! call {
+    ($out:ident = $method:ident($self_:ident)) => {{
+        let data: &mut T = data_field!(&$self_);
+        let value = data.$method();
+        unsafe { *$out = value };
+        return BMI_SUCCESS;
+    }};
+    ($out:ident = $method:ident($self_:ident) as $cast:ty) => {{
+        let data: &mut T = data_field!(&$self_);
+        let value = data.$method();
+        unsafe { *$out = value as $cast };
+        return BMI_SUCCESS;
+    }};
+    ($out:ident = $method:ident($self_:ident, $in:expr)) => {{
+        let data: &mut T = data_field!(&$self_);
+        let value = ok_or_fail!(data.$method($in));
+        unsafe { *$out = value };
+        return BMI_SUCCESS;
+    }};
+    ($out:ident = $method:ident($self_:ident, $in:expr) as [$cast:ty]) => {{
+        let data: &mut T = data_field!(&$self_);
+        let value = ok_or_fail!(data.$method($in));
+        copy_from_slice!($out, value, $cast);
+        BMI_SUCCESS
+    }};
+    ($out:ident = $method:ident($self_:ident, $in:expr) as $cast:ty) => {{
+        let data: &mut T = data_field!(&$self_);
+        let value = ok_or_fail!(data.$method($in));
+        unsafe { *$out = value as $cast };
+        return BMI_SUCCESS;
+    }};
+}
+
+fn any_gt_max_i32(vs: &[u32]) -> bool {
+    vs.iter().any(|v| *v > i32::MAX as u32)
+}
+
+// NOTE: it would be nice if there were also a feature flag to keep this on in release builds.
+macro_rules! debug_assert_all_lte_max_i32 {
+    ($vs:ident) => {
+        debug_assert!(
+            !any_gt_max_i32($vs),
+            "cannot pass value greater than i32::MAX"
+        )
+    };
+}
+
+macro_rules! debug_assert_lte_max_i32 {
+    ($value:ident) => {
+        debug_assert!(
+            $value <= i32::MAX as u32,
+            "cannot pass value greater than i32::MAX"
+        )
+    };
+}
+
+macro_rules! debug_assert_call {
+    ($out:ident = $method:ident($self_:ident, $in:expr) as [c_int]) => {{
+        let data: &mut T = data_field!(&$self_);
+        let value = ok_or_fail!(data.$method($in));
+        debug_assert_all_lte_max_i32!(value);
+        // NOTE: only safe in debug mode.
+        //       b.c. in rust item type of `value` is u32. In bmi-c item type is i32.
+        //       assert the cast is safe in debug builds.
+        // value: &[u32]
+        // $out: **c_int but we will treat it like a &[u32]
+        copy_from_slice!($out, value, u32);
+        BMI_SUCCESS
+    }};
+    ($out:ident = $method:ident($self_:ident, $in:expr) as c_int) => {{
+        // NOTE: check pointer is not null
+        let data: &mut T = data_field!(&$self_);
+        let value = ok_or_fail!(data.$method($in));
+        debug_assert_lte_max_i32!(value);
+        // NOTE: only safe in debug mode.
+        //       b.c. in rust item type of `value` is u32. In bmi-c item type is i32.
+        //       assert the cast is safe in debug builds.
+        unsafe { *$out = value as c_int };
+        BMI_SUCCESS
+    }};
+    ($out:ident = $method:ident($self_:ident) as c_int) => {{
+        // NOTE: check pointer is not null
+        let data: &mut T = data_field!(&$self_);
+        let value = data.$method();
+        debug_assert_lte_max_i32!(value);
+        // NOTE: only safe in debug mode.
+        //       b.c. in rust item type of `value` is u32. In bmi-c item type is i32.
+        //       assert the cast is safe in debug builds.
+        unsafe { *$out = value as c_int };
+        BMI_SUCCESS
+    }};
+}
+
 pub extern "C" fn initialize<T: Bmi>(self_: *mut ffi::Bmi, config_file: *const c_char) -> c_int {
     let config_file = as_str_ref_or_fail!(config_file);
     let data: &mut T = data_field!(&self_);
