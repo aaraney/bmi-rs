@@ -203,15 +203,11 @@ pub extern "C" fn get_component_name<T: Bmi>(self_: *mut ffi::Bmi, name: *mut c_
 }
 
 pub extern "C" fn get_input_item_count<T: Bmi>(self_: *mut ffi::Bmi, count: *mut c_int) -> c_int {
-    let data: &mut T = data_field!(&self_);
-    unsafe { *count = data.get_input_item_count() as c_int };
-    BMI_SUCCESS
+    debug_assert_call!(count = get_input_item_count(self_) as c_int)
 }
 
 pub extern "C" fn get_output_item_count<T: Bmi>(self_: *mut ffi::Bmi, count: *mut c_int) -> c_int {
-    let data: &mut T = data_field!(&self_);
-    unsafe { *count = data.get_output_item_count() as c_int };
-    BMI_SUCCESS
+    debug_assert_call!(count = get_output_item_count(self_) as c_int)
 }
 
 // NOTE: I not sure if the double pointer is right or not?
@@ -296,10 +292,7 @@ pub extern "C" fn get_var_itemsize<T: Bmi>(
     size: *mut c_int,
 ) -> c_int {
     let var_name = as_str_ref_or_fail!(name);
-    let data: &mut T = data_field!(&self_);
-    let item_size = ok_or_fail!(data.get_var_itemsize(var_name));
-    unsafe { *size = item_size as i32 };
-    BMI_SUCCESS
+    debug_assert_call!(size = get_var_itemsize(self_, var_name) as c_int)
 }
 pub extern "C" fn get_var_nbytes<T: Bmi>(
     self_: *mut ffi::Bmi,
@@ -307,10 +300,7 @@ pub extern "C" fn get_var_nbytes<T: Bmi>(
     nbytes: *mut c_int,
 ) -> c_int {
     let var_name = as_str_ref_or_fail!(name);
-    let data: &mut T = data_field!(&self_);
-    let var_nbytes = ok_or_fail!(data.get_var_nbytes(var_name));
-    unsafe { *nbytes = var_nbytes as i32 };
-    BMI_SUCCESS
+    debug_assert_call!(nbytes = get_var_nbytes(self_, var_name) as c_int)
 }
 pub extern "C" fn get_var_location<T: Bmi>(
     self_: *mut ffi::Bmi,
@@ -325,35 +315,20 @@ pub extern "C" fn get_var_location<T: Bmi>(
 
 /* Time information */
 pub extern "C" fn get_current_time<T: Bmi>(self_: *mut ffi::Bmi, time: *mut c_double) -> c_int {
-    let data: &mut T = data_field!(&self_);
-    unsafe { *time = data.get_current_time() };
-    BMI_SUCCESS
+    call!(time = get_current_time(self_))
 }
 pub extern "C" fn get_start_time<T: Bmi>(self_: *mut ffi::Bmi, time: *mut c_double) -> c_int {
-    let data: &mut T = data_field!(&self_);
-    unsafe { *time = data.get_start_time() };
-    BMI_SUCCESS
+    call!(time = get_start_time(self_))
 }
 pub extern "C" fn get_end_time<T: Bmi>(self_: *mut ffi::Bmi, time: *mut c_double) -> c_int {
-    let data: &mut T = data_field!(&self_);
-    unsafe { *time = data.get_end_time() };
-    BMI_SUCCESS
+    call!(time = get_end_time(self_))
 }
 pub extern "C" fn get_time_units<T: Bmi>(self_: *mut ffi::Bmi, units: *mut c_char) -> c_int {
     let data: &mut T = data_field!(&self_);
     copy_str(data.get_time_units(), units).bmi_result()
 }
 pub extern "C" fn get_time_step<T: Bmi>(self_: *mut ffi::Bmi, time_step: *mut c_double) -> c_int {
-    let data: &mut T = data_field!(&self_);
-    unsafe { *time_step = data.get_time_step() };
-    BMI_SUCCESS
-}
-
-macro_rules! copy_from_slice {
-    ($dest:ident, $value:expr, $ctype: ty) => {{
-        let value_slice = unsafe { slice::from_raw_parts_mut($dest as *mut $ctype, $value.len()) };
-        value_slice.copy_from_slice($value);
-    }};
+    call!(time_step = get_time_step(self_))
 }
 
 // /* Getters */
@@ -381,11 +356,17 @@ pub extern "C" fn get_value<T: Bmi>(
     BMI_SUCCESS
 }
 
+/// See
+/// (#3)[https://github.com/aaraney/bmi-rs/issues/3]
+/// for why this returns `BMI_FAILURE`.
+#[allow(unused_variables)]
 pub extern "C" fn get_value_ptr<T: Bmi>(
     self_: *mut ffi::Bmi,
     name: *const c_char,
     dest: *mut *mut c_void,
 ) -> c_int {
+    BMI_FAILURE
+    /*
     let var_name = as_str_ref_or_fail!(name);
     let data: &mut T = data_field!(&self_);
 
@@ -403,6 +384,7 @@ pub extern "C" fn get_value_ptr<T: Bmi>(
     };
     unsafe { *dest = src };
     BMI_SUCCESS
+    */
 }
 
 pub extern "C" fn get_value_at_indices<T: Bmi>(
@@ -512,6 +494,10 @@ pub extern "C" fn set_value_at_indices<T: Bmi>(
 ) -> c_int {
     let var_name = as_str_ref_or_fail!(name);
 
+    // TODO: make this into a debug assert
+    // or maybe a feature flag that is default on?
+    // something like: bmi-c input bounds checks
+    debug_assert!(count < 0, "count < 0; count = {}", count);
     if count < 0 {
         return BMI_FAILURE;
     }
