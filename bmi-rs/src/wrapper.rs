@@ -255,10 +255,7 @@ pub extern "C" fn get_var_grid<T: Bmi>(
     grid: *mut c_int,
 ) -> c_int {
     let var_name = as_str_ref_or_fail!(name);
-    let data: &mut T = data_field!(&self_);
-    let grid_id = ok_or_fail!(data.get_var_grid(var_name));
-    unsafe { *grid = grid_id };
-    return BMI_FAILURE;
+    call!(grid = get_var_grid(self_, var_name))
 }
 
 pub extern "C" fn get_var_type<T: Bmi>(
@@ -577,35 +574,20 @@ pub extern "C" fn set_value_at_indices<T: Bmi>(
     res.bmi_result()
 }
 
-macro_rules! call {
-    ($method:ident($self_:ident, $in:expr, $out:ident)) => {{
-        let data: &mut T = data_field!(&$self_);
-        let value = ok_or_fail!(data.$method($in));
-        unsafe { *$out = value };
-        return BMI_SUCCESS;
-    }};
-    ($method:ident($self_:ident, $in:expr, $out:ident) as $cast:ty) => {{
-        let data: &mut T = data_field!(&$self_);
-        let value = ok_or_fail!(data.$method($in));
-        unsafe { *$out = value as $cast };
-        return BMI_SUCCESS;
-    }};
-}
-
 /* Grid information */
 pub extern "C" fn get_grid_rank<T: Bmi>(
     self_: *mut ffi::Bmi,
     grid: c_int,
     rank: *mut c_int,
 ) -> c_int {
-    call!(get_grid_rank(self_, grid, rank) as i32)
+    debug_assert_call!(rank = get_grid_rank(self_, grid) as c_int)
 }
 pub extern "C" fn get_grid_size<T: Bmi>(
     self_: *mut ffi::Bmi,
     grid: c_int,
     size: *mut c_int,
 ) -> c_int {
-    call!(get_grid_size(self_, grid, size) as i32)
+    debug_assert_call!(size = get_grid_size(self_, grid) as c_int)
 }
 pub extern "C" fn get_grid_type<T: Bmi>(
     self_: *mut ffi::Bmi,
@@ -623,32 +605,38 @@ pub extern "C" fn get_grid_shape<T: Bmi>(
     grid: c_int,
     shape: *mut c_int,
 ) -> c_int {
-    call!(get_grid_shape(self_, grid, shape))
+    debug_assert_call!(shape = get_grid_shape(self_, grid) as [c_int])
 }
 pub extern "C" fn get_grid_spacing<T: Bmi>(
     self_: *mut ffi::Bmi,
     grid: c_int,
     spacing: *mut c_double,
 ) -> c_int {
-    call!(get_grid_spacing(self_, grid, spacing))
+    call!(spacing = get_grid_spacing(self_, grid) as [c_double])
 }
 pub extern "C" fn get_grid_origin<T: Bmi>(
     self_: *mut ffi::Bmi,
     grid: c_int,
     origin: *mut c_double,
 ) -> c_int {
-    call!(get_grid_origin(self_, grid, origin))
+    call!(origin = get_grid_origin(self_, grid) as [c_double])
 }
 
 /* Non-uniform rectilinear, curvilinear */
 pub extern "C" fn get_grid_x<T: Bmi>(self_: *mut ffi::Bmi, grid: c_int, x: *mut c_double) -> c_int {
-    call!(get_grid_x(self_, grid, x))
+    call!(x = get_grid_x(self_, grid) as [c_double])
+    /*
+    let data: &mut T = data_field!(&self_);
+    let value = ok_or_fail!(data.get_grid_x(grid));
+    copy_from_slice!(x, value, c_double);
+    BMI_SUCCESS
+    */
 }
 pub extern "C" fn get_grid_y<T: Bmi>(self_: *mut ffi::Bmi, grid: c_int, y: *mut c_double) -> c_int {
-    call!(get_grid_y(self_, grid, y))
+    call!(y = get_grid_y(self_, grid) as [c_double])
 }
 pub extern "C" fn get_grid_z<T: Bmi>(self_: *mut ffi::Bmi, grid: c_int, z: *mut c_double) -> c_int {
-    call!(get_grid_z(self_, grid, z))
+    call!(z = get_grid_z(self_, grid) as [c_double])
 }
 
 /* Unstructured */
@@ -657,21 +645,22 @@ pub extern "C" fn get_grid_node_count<T: Bmi>(
     grid: c_int,
     count: *mut c_int,
 ) -> c_int {
-    call!(get_grid_node_count(self_, grid, count))
+    debug_assert_call!(count = get_grid_node_count(self_, grid) as c_int)
 }
 pub extern "C" fn get_grid_edge_count<T: Bmi>(
     self_: *mut ffi::Bmi,
     grid: c_int,
     count: *mut c_int,
 ) -> c_int {
-    call!(get_grid_edge_count(self_, grid, count))
+    debug_assert_call!(count = get_grid_edge_count(self_, grid) as c_int)
 }
+
 pub extern "C" fn get_grid_face_count<T: Bmi>(
     self_: *mut ffi::Bmi,
     grid: c_int,
     count: *mut c_int,
 ) -> c_int {
-    call!(get_grid_face_count(self_, grid, count))
+    debug_assert_call!(count = get_grid_face_count(self_, grid) as c_int)
 }
 
 pub extern "C" fn get_grid_edge_nodes<T: Bmi>(
@@ -679,26 +668,26 @@ pub extern "C" fn get_grid_edge_nodes<T: Bmi>(
     grid: c_int,
     edge_nodes: *mut c_int,
 ) -> c_int {
-    call!(get_grid_edge_nodes(self_, grid, edge_nodes))
+    debug_assert_call!(edge_nodes = get_grid_edge_nodes(self_, grid) as [c_int])
 }
 pub extern "C" fn get_grid_face_edges<T: Bmi>(
     self_: *mut ffi::Bmi,
     grid: c_int,
     face_edges: *mut c_int,
 ) -> c_int {
-    call!(get_grid_face_edges(self_, grid, face_edges))
+    debug_assert_call!(face_edges = get_grid_face_edges(self_, grid) as [c_int])
 }
 pub extern "C" fn get_grid_face_nodes<T: Bmi>(
     self_: *mut ffi::Bmi,
     grid: c_int,
     face_nodes: *mut c_int,
 ) -> c_int {
-    call!(get_grid_face_nodes(self_, grid, face_nodes))
+    debug_assert_call!(face_nodes = get_grid_face_nodes(self_, grid) as [c_int])
 }
 pub extern "C" fn get_grid_nodes_per_face<T: Bmi>(
     self_: *mut ffi::Bmi,
     grid: c_int,
     nodes_per_face: *mut c_int,
 ) -> c_int {
-    call!(get_grid_nodes_per_face(self_, grid, nodes_per_face))
+    debug_assert_call!(nodes_per_face = get_grid_nodes_per_face(self_, grid) as [c_int])
 }
