@@ -691,3 +691,20 @@ pub extern "C" fn get_grid_nodes_per_face<T: Bmi>(
 ) -> c_int {
     debug_assert_call!(nodes_per_face = get_grid_nodes_per_face(self_, grid) as [c_int])
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn any_greater_than_max_i32_true() {
+        let vs: Vec<u32> = vec![0, i32::MAX as u32 + 1];
+        assert!(any_gt_max_i32(&vs));
+    }
+
+    #[test]
+    fn any_greater_than_max_i32_false() {
+        let vs: Vec<u32> = vec![0, i32::MAX as u32];
+        assert!(!any_gt_max_i32(&vs));
+    }
+}
