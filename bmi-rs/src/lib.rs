@@ -3,4 +3,10 @@
 /// _like_ trait and functionality to expose implementations over ffi via the
 /// [bmi-c interface](https://github.com/csdms/bmi-c).
 pub mod bmi;
-pub mod wrapper;
+
+pub mod errors;
+
+mod wrapper;
+pub use crate::bmi::{
+    Bmi, BmiResult, GridType, Location, RefValues, ValueType, Values, register_model,
+};
