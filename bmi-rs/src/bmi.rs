@@ -1,5 +1,5 @@
+use crate::errors::{BmiIndexOutOfBounds, BmiNotImplementedError};
 use std::error::Error;
-use std::fmt;
 
 pub const MAX_COMPONENT_NAME: u32 = 2048;
 pub const MAX_VAR_NAME: u32 = 2048;
@@ -225,36 +225,8 @@ impl_value_type!(RefValues<'_>; I16, U16, I32, U32, I64, U64, F32, F64,);
 
 pub type BmiResult<T> = Result<T, Box<dyn Error>>;
 
-macro_rules! err {
-    ($name:ident, $msg:literal) => {
-        #[doc = $msg]
-        #[doc = " error"]
-        #[derive(Debug)]
-        pub struct $name;
-
-        impl fmt::Display for $name {
-            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                write!(f, $msg)
-            }
-        }
-
-        impl Error for $name {}
-
-        impl<T> From<$name> for BmiResult<T> {
-            fn from(value: $name) -> Self {
-                Err(Box::new(value))
-            }
-        }
-    };
-}
-
-// TODO: revisit this.
-// not sure if im happy with it or not.
-err!(BmiNotImplementedError, "not implemented");
-err!(BmiIndexOutOfBounds, "index out of bounds");
-
 macro_rules! values_at_indices {
-    ($t:ty, $inds:ident, $values:expr) => {{
+    ($t:ty, $inds:expr, $values:expr) => {{
         let mut v = Vec::<$t>::with_capacity($inds.len());
         for i in $inds {
             if *i >= $values.len() as u32 {
