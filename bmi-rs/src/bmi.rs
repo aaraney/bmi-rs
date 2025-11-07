@@ -887,3 +887,67 @@ fn setup_fn_ptrs<T: Bmi>(handle: &mut ffi::Bmi) {
     handle.get_grid_face_nodes = Some(crate::wrapper::get_grid_face_nodes::<T>);
     handle.get_grid_nodes_per_face = Some(crate::wrapper::get_grid_nodes_per_face::<T>);
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    fn case(vs: &[u16], idx: &[u32]) -> Result<Values, Box<dyn Error>> {
+        values_at_indices!(u16, idx, vs)
+    }
+    #[test]
+    fn test_empty() {
+        let vs: [u16; 0] = [];
+        let inds: [u32; 0] = [];
+        assert!(case(&vs, &inds).is_ok());
+
+        let vs: [u16; 1] = [42];
+        let inds: [u32; 0] = [];
+        assert!(case(&vs, &inds).is_ok());
+    }
+
+    #[test]
+    fn test_one() {
+        let vs: [u16; 1] = [42];
+        let inds: [u32; 1] = [0];
+        match case(&vs, &inds) {
+            Ok(values) => match values {
+                Values::U16(values) => {
+                    let i = inds[0] as usize;
+                    assert_eq!(values[i], vs[i]);
+                }
+                _ => assert!(false),
+            },
+            _ => assert!(false),
+        }
+    }
+
+    #[test]
+    fn test_many() {
+        let vs: [u16; 2] = [0, 1];
+        let inds: [u32; 2] = [0, 1];
+        match case(&vs, &inds) {
+            Ok(values) => match values {
+                Values::U16(values) => {
+                    for i in &inds {
+                        let i = *i as usize;
+                        assert_eq!(values[i], vs[i]);
+                    }
+                }
+                _ => assert!(false),
+            },
+            _ => assert!(false),
+        }
+    }
+
+    #[test]
+    fn test_out_of_bounds() {
+        let vs: [u16; 0] = [];
+        let inds: [u32; 1] = [1];
+        match case(&vs, &inds) {
+            Err(err) => {
+                assert!(err.is::<crate::errors::BmiIndexOutOfBounds>());
+            }
+            _ => assert!(false),
+        }
+    }
+}
