@@ -356,17 +356,13 @@ pub extern "C" fn get_value<T: Bmi>(
     BMI_SUCCESS
 }
 
-/// See
-/// (#3)[https://github.com/aaraney/bmi-rs/issues/3]
-/// for why this returns `BMI_FAILURE`.
+#[cfg(feature = "compat")]
 #[allow(unused_variables)]
 pub extern "C" fn get_value_ptr<T: Bmi>(
     self_: *mut ffi::Bmi,
     name: *const c_char,
     dest: *mut *mut c_void,
 ) -> c_int {
-    BMI_FAILURE
-    /*
     let var_name = as_str_ref_or_fail!(name);
     let data: &mut T = data_field!(&self_);
 
@@ -384,7 +380,19 @@ pub extern "C" fn get_value_ptr<T: Bmi>(
     };
     unsafe { *dest = src };
     BMI_SUCCESS
-    */
+}
+
+/// See
+/// (#3)[https://github.com/aaraney/bmi-rs/issues/3]
+/// for why this returns `BMI_FAILURE`.
+#[cfg(not(feature = "compat"))]
+#[allow(unused_variables)]
+pub extern "C" fn get_value_ptr<T: Bmi>(
+    self_: *mut ffi::Bmi,
+    name: *const c_char,
+    dest: *mut *mut c_void,
+) -> c_int {
+    BMI_FAILURE
 }
 
 pub extern "C" fn get_value_at_indices<T: Bmi>(
