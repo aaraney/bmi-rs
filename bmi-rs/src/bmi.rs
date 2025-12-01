@@ -498,16 +498,29 @@ pub trait Bmi {
     /* Getters */
     /// Return a reference to a flattened slice of values for a given variable.
     ///
-    /// Note, [`Bmi`] does not include the BMI `get_value` method in its method set.
-    /// This may change in the future.
-    /// Likewise, the return type of [`get_value_ptr`] may change in future versions.
-    /// See discussion in [#3](https://github.com/aaraney/bmi-rs/issues/3).
+    /// This crate's bmi-c ffi bindings call a [`Bmi`]'s [`get_value_ptr`] method when
+    /// the bmi-c
+    /// [`get_value`](https://bmi.csdms.io/en/stable/bmi.getter_setter.html#get-value)
+    /// function pointer is called.
+    ///
+    /// Note, [`Bmi`] does not include the
+    /// [BMI `get_value`](https://bmi.csdms.io/en/stable/bmi.getter_setter.html#get-value)
+    /// method in its method set.
+    /// [`get_value_ptr`] should be used where `get_value` would typically be used, or where read-only
+    /// access to a variable is sufficient.
+    ///
+    /// Note, some bmi-c drivers
+    /// (e.g. [`ngen`](https://github.com/noaa-owp/ngen))
+    /// require variables be available by raw pointer for efficiency reasons.
+    /// [`Bmi`] implementations should take this into consideration when deciding what variables
+    /// are exposed over [`get_value_ptr`] and [`get_value_mut_ptr`].
     ///
     /// See
     /// [csdms bmi `get_value_ptr`](https://bmi.csdms.io/en/stable/bmi.getter_setter.html#get-value-ptr)
     /// docs for more info.
     ///
     /// [`get_value_ptr`]: #tymethod.get_value_ptr
+    /// [`get_value_mut_ptr`]: #tymethod.get_value_mut_ptr
     fn get_value_ptr(&self, name: &str) -> BmiResult<RefValues<'_>>;
 
     /// Return a [`MutPtrValues`] to a flattened slice of values for a given variable.
