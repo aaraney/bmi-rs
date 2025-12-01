@@ -8,5 +8,5 @@ pub mod errors;
 
 mod wrapper;
 pub use crate::bmi::{
-    Bmi, BmiResult, GridType, Location, RefValues, ValueType, Values, register_model,
+    Bmi, BmiResult, GridType, Location, MutPtrValues, RefValues, ValueType, Values, register_model,
 };
