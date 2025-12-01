@@ -1,4 +1,4 @@
-use crate::bmi::{Bmi, RefValues, ValueType, Values};
+use crate::bmi::{Bmi, MutPtrValues, RefValues, ValueType, Values};
 use ffi::{BMI_FAILURE, BMI_SUCCESS};
 use std::ffi::{
     CStr, CString, c_char, c_double, c_float, c_int, c_long, c_short, c_uint, c_ulong, c_ushort,
@@ -356,35 +356,29 @@ pub extern "C" fn get_value<T: Bmi>(
     BMI_SUCCESS
 }
 
-/// See
-/// (#3)[https://github.com/aaraney/bmi-rs/issues/3]
-/// for why this returns `BMI_FAILURE`.
-#[allow(unused_variables)]
 pub extern "C" fn get_value_ptr<T: Bmi>(
     self_: *mut ffi::Bmi,
     name: *const c_char,
     dest: *mut *mut c_void,
 ) -> c_int {
-    BMI_FAILURE
-    /*
     let var_name = as_str_ref_or_fail!(name);
     let data: &mut T = data_field!(&self_);
 
-    let value_ptr = ok_or_fail!(data.get_value_ptr(var_name));
+    let value_ptr = unsafe { data.get_value_mut_ptr(var_name) };
+    let value_ptr = ok_or_fail!(value_ptr);
 
     let src = match value_ptr {
-        RefValues::I16(v) => v.as_ptr() as *mut c_void,
-        RefValues::U16(v) => v.as_ptr() as *mut c_void,
-        RefValues::I32(v) => v.as_ptr() as *mut c_void,
-        RefValues::U32(v) => v.as_ptr() as *mut c_void,
-        RefValues::I64(v) => v.as_ptr() as *mut c_void,
-        RefValues::U64(v) => v.as_ptr() as *mut c_void,
-        RefValues::F32(v) => v.as_ptr() as *mut c_void,
-        RefValues::F64(v) => v.as_ptr() as *mut c_void,
+        MutPtrValues::I16(v) => v as *mut c_void,
+        MutPtrValues::U16(v) => v as *mut c_void,
+        MutPtrValues::I32(v) => v as *mut c_void,
+        MutPtrValues::U32(v) => v as *mut c_void,
+        MutPtrValues::I64(v) => v as *mut c_void,
+        MutPtrValues::U64(v) => v as *mut c_void,
+        MutPtrValues::F32(v) => v as *mut c_void,
+        MutPtrValues::F64(v) => v as *mut c_void,
     };
     unsafe { *dest = src };
     BMI_SUCCESS
-    */
 }
 
 pub extern "C" fn get_value_at_indices<T: Bmi>(
