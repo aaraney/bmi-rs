@@ -9,7 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Unsafe `get_value_mut_ptr` method to `bmi_rs::Bmi` trait; analog of bmi-c's `get_value_ptr`.
+  Default returns `Err(BmiNotImplementedError)`. [#14](https://github.com/aaraney/bmi-rs/pull/14)
+
 ### Changed
+
+- bmi-c ffi `get_value_ptr` wrapper calls `bmi_rs::Bmi::get_value_mut_ptr` instead of always returning `BMI_FAILURE`. [#14](https://github.com/aaraney/bmi-rs/pull/14)
 
 ### Deprecated
 

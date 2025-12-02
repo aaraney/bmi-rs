@@ -223,6 +223,41 @@ impl_from_ref_t_for_ref_values!(
 impl_len!(RefValues<'_>; I16, U16, I32, U32, I64, U64, F32, F64,);
 impl_value_type!(RefValues<'_>; I16, U16, I32, U32, I64, U64, F32, F64,);
 
+#[derive(Debug)]
+pub enum MutPtrValues {
+    I16(*mut i16), // short
+    U16(*mut u16), // unsigned short
+    I32(*mut i32), // usually int
+    U32(*mut u32), // usually unsigned int
+    I64(*mut i64), // long or usually long long
+    U64(*mut u64), // unsigned long or usually unsigned long long
+    F32(*mut f32), // float
+    F64(*mut f64), // double
+}
+
+macro_rules! impl_from_ref_mut_slice_for_mut_ptr_values {
+    ($($name:ident; $t:ty),*$(,)?) => {
+        $(
+        impl From<&mut [$t]> for MutPtrValues{
+            fn from(v: &mut [$t]) -> Self {
+                Self::$name(v.as_mut_ptr())
+            }
+        }
+    )*
+    };
+}
+
+impl_from_ref_mut_slice_for_mut_ptr_values!(
+    I16;i16,
+    U16;u16,
+    I32;i32,
+    U32;u32,
+    I64;i64,
+    U64;u64,
+    F32;f32,
+    F64;f64,
+);
+
 pub type BmiResult<T> = Result<T, Box<dyn Error>>;
 
 macro_rules! values_at_indices {
@@ -463,17 +498,54 @@ pub trait Bmi {
     /* Getters */
     /// Return a reference to a flattened slice of values for a given variable.
     ///
-    /// Note, [`Bmi`] does not include the BMI `get_value` method in its method set.
-    /// This may change in the future.
-    /// Likewise, the return type of [`get_value_ptr`] may change in future versions.
-    /// See discussion in [#3](https://github.com/aaraney/bmi-rs/issues/3).
+    /// This crate's bmi-c ffi bindings call a [`Bmi`]'s [`get_value_ptr`] method when
+    /// the bmi-c
+    /// [`get_value`](https://bmi.csdms.io/en/stable/bmi.getter_setter.html#get-value)
+    /// function pointer is called.
+    ///
+    /// Note, [`Bmi`] does not include the
+    /// [BMI `get_value`](https://bmi.csdms.io/en/stable/bmi.getter_setter.html#get-value)
+    /// method in its method set.
+    /// [`get_value_ptr`] should be used where `get_value` would typically be used, or where read-only
+    /// access to a variable is sufficient.
+    ///
+    /// Note, some bmi-c drivers
+    /// (e.g. [`ngen`](https://github.com/noaa-owp/ngen))
+    /// require variables be available by raw pointer for efficiency reasons.
+    /// [`Bmi`] implementations should take this into consideration when deciding what variables
+    /// are exposed over [`get_value_ptr`] and [`get_value_mut_ptr`].
     ///
     /// See
     /// [csdms bmi `get_value_ptr`](https://bmi.csdms.io/en/stable/bmi.getter_setter.html#get-value-ptr)
     /// docs for more info.
     ///
     /// [`get_value_ptr`]: #tymethod.get_value_ptr
+    /// [`get_value_mut_ptr`]: #tymethod.get_value_mut_ptr
     fn get_value_ptr(&self, name: &str) -> BmiResult<RefValues<'_>>;
+
+    /// Return a [`MutPtrValues`] to a flattened slice of values for a given variable.
+    ///
+    /// Default implementation returns Err([`BmiNotImplementedError`]).
+    ///
+    /// This crate's bmi-c ffi bindings call a [`Bmi`]'s [`get_value_mut_ptr`] method when
+    /// the bmi-c
+    /// [`get_value_ptr`](https://bmi.csdms.io/en/stable/bmi.getter_setter.html#get-value-ptr)
+    /// function pointer is called. Code calling the [`Bmi`] instance
+    /// should use this method to read or write data to a variable the _model chooses to expose by
+    /// pointer_. The code calling the [`Bmi`] instance must be aware of the lifetime guarantees of
+    /// the returned pointer. It's recommended that [`Bmi`] instances that implement this method
+    /// provide a SAFETY comment documenting the lifetime guarantees of variables exposed by their
+    /// implementation.
+    ///
+    /// See
+    /// [csdms bmi `get_value_ptr`](https://bmi.csdms.io/en/stable/bmi.getter_setter.html#get-value-ptr)
+    /// docs for more info.
+    ///
+    /// [`get_value_mut_ptr`]: #tymethod.get_value_mut_ptr
+    #[allow(unused_variables)]
+    unsafe fn get_value_mut_ptr(&self, name: &str) -> BmiResult<MutPtrValues> {
+        BmiNotImplementedError.into()
+    }
 
     /// Return an owned copy of a variable’s values at the `inds` specified.
     ///
